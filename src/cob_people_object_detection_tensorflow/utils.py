@@ -77,8 +77,6 @@ def create_detection_msg(im, boxes, scores, classes, category_index):
         sc = scores[0,s]
         cl = classes[0,s]
 
-        print category_index
-
         # Create the detection message
         detection = Detection()
         detection.header = im.header

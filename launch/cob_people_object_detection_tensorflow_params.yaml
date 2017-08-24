@@ -6,3 +6,6 @@ num_of_classes: 90
 
 # name of the label pbtxt file
 label_file: "mscoco_label_map.pbtxt"
+
+# Set your RGB image topic here, default is for openni2
+camera_namespace: "/camera/rgb/image_raw"

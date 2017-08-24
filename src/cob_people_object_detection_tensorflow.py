@@ -28,7 +28,8 @@ class PeopleObjectDetectionNode(object):
         rospy.init_node('people_object_detection', anonymous=False)
 
         # Get the parameters
-        (model_name, num_of_classes, label_file) = self.get_parameters()
+        (model_name, num_of_classes, label_file, camera_namespace) = \
+            self.get_parameters()
 
         # Create Detector
         self._detector = Detector(model_name, num_of_classes, label_file)
@@ -44,7 +45,7 @@ class PeopleObjectDetectionNode(object):
             '/object_detection/detections_image', Image, queue_size=1)
 
         # Subscribe to the face positions
-        self.sub_rgb = rospy.Subscriber("/camera/rgb/image_raw",\
+        self.sub_rgb = rospy.Subscriber(camera_namespace,\
             Image, self.rgb_callback, queue_size=1, buff_size=2**24)
 
         # spin
@@ -64,8 +65,9 @@ class PeopleObjectDetectionNode(object):
         model_name  = rospy.get_param("~model_name")
         num_of_classes  = rospy.get_param("~num_of_classes")
         label_file  = rospy.get_param("~label_file")
+        camera_namespace  = rospy.get_param("~camera_namespace")
 
-        return (model_name, num_of_classes, label_file)
+        return (model_name, num_of_classes, label_file, camera_namespace)
 
 
     def shutdown(self):

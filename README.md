@@ -44,7 +44,7 @@ Turn on your camera driver in ROS and set your input RGB topic name in yaml conf
 Then,
 
 ```sh
-$ roslaunch cob_people_object_detection_tensorflow cob_people_object_detection_tensorflow.launch camera_namespace:=
+$ roslaunch cob_people_object_detection_tensorflow cob_people_object_detection_tensorflow.launch 
 ```
 
 License

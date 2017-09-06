@@ -4,9 +4,12 @@ ROS(Robot Operating System) port of Tensorflow Object Detection API
 
 The codes are based on jupyter notebook inside of the object detection API.
 
-# Features!
+Sample frame:
+![alt text](https://raw.githubusercontent.com/cagbal/cob_people_object_detection_tensorflow/master/images/screenshot.png)
 
-  - Detects the objects in imagescoming from a camera topic  
+# Features
+
+  - Detects the objects in images coming from a camera topic  
   - Publishes the scores, bounding boxes and labes of detection
   - Publishes detection image with bounding boxes as a sensor_msgs/Image
   - Parameters can be set fom a Yaml file
@@ -46,6 +49,21 @@ Then,
 ```sh
 $ roslaunch cob_people_object_detection_tensorflow cob_people_object_detection_tensorflow.launch 
 ```
+
+##### Subscibes to:
+- To any RGB image topic that you set in *params.yaml file. 
+
+##### Publishes to:
+- /object_detection/detections (cob_perception_msgs/DetectionArray) Includes all the detections with probabilities, labels and bounding boxes
+- /object_detection/detections_image (sensor_msgs/Image) The image with bounding boxes 
+
+### Performance 
+The five last detection times from my computer(Intel(R) Core(TM) i7-6820HK CPU @ 2.70GHz) in seconds: 
+0.105810880661
+0.108750104904
+0.112195014954
+0.115020036697
+0.108013153076
 
 License
 ----

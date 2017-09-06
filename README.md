@@ -2,7 +2,7 @@
 
 ROS(Robot Operating System) port of Tensorflow Object Detection API
 
-The codes are based on jupyter notebook insed of the object detection API.
+The codes are based on jupyter notebook inside of the object detection API.
 
 # Features!
 

@@ -9,6 +9,8 @@ Author:
 # ROS
 import rospy
 
+import cv2
+
 from cob_perception_msgs.msg import Detection, DetectionArray, Rect
 
 from sensor_msgs.msg import Image
@@ -28,8 +30,8 @@ class PeopleObjectDetectionNode(object):
         rospy.init_node('people_object_detection', anonymous=False)
 
         # Get the parameters
-        (model_name, num_of_classes, label_file, camera_namespace) = \
-            self.get_parameters()
+        (model_name, num_of_classes, label_file, camera_namespace, video_name) \
+        = self.get_parameters()
 
         # Create Detector
         self._detector = Detector(model_name, num_of_classes, label_file)
@@ -44,12 +46,48 @@ class PeopleObjectDetectionNode(object):
         self.pub_detections_image = rospy.Publisher(\
             '/object_detection/detections_image', Image, queue_size=1)
 
-        # Subscribe to the face positions
-        self.sub_rgb = rospy.Subscriber(camera_namespace,\
-            Image, self.rgb_callback, queue_size=1, buff_size=2**24)
+        if video_name == "no":
+            # Subscribe to the face positions
+            self.sub_rgb = rospy.Subscriber(camera_namespace,\
+                Image, self.rgb_callback, queue_size=1, buff_size=2**24)
+        else:
+            self.read_from_video(video_name)
+
 
         # spin
         rospy.spin()
+
+    def read_from_video(self, video_name):
+        """
+        Applies object detection to a video
+
+        Args:
+            Name of the video with full path
+
+        Returns:
+
+        """
+
+        cap = cv2.VideoCapture(video_name)
+
+        while(cap.isOpened()):
+            ret, frame = cap.read()
+
+            if frame is not None:
+                image_message = \
+                    self._bridge.cv2_to_imgmsg(frame, "bgr8")
+
+                self.rgb_callback(image_message)
+
+            else:
+                break
+
+        cap.release()
+        cv2.destroyAllWindows()
+
+        print "Video has been processed!"
+
+        self.shutdown()
 
     def get_parameters(self):
         """
@@ -66,8 +104,10 @@ class PeopleObjectDetectionNode(object):
         num_of_classes  = rospy.get_param("~num_of_classes")
         label_file  = rospy.get_param("~label_file")
         camera_namespace  = rospy.get_param("~camera_namespace")
+        video_name = rospy.get_param("~video_name")
 
-        return (model_name, num_of_classes, label_file, camera_namespace)
+        return (model_name, num_of_classes, label_file, \
+                camera_namespace, video_name)
 
 
     def shutdown(self):
@@ -81,7 +121,7 @@ class PeopleObjectDetectionNode(object):
         Callback for RGB images
         """
         try:
-            # Conver image to numpy array
+            # Convert image to numpy array
             cv_image = self._bridge.imgmsg_to_cv2(data, "bgr8")
 
             # Detect

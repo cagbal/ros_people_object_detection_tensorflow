@@ -92,10 +92,3 @@ def create_detection_msg(im, boxes, scores, classes, category_index):
         msg.detections.append(detection)
 
     return msg
-
-
-
-
-
-
-    return msg

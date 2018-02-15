@@ -14,4 +14,4 @@ camera_namespace: "/camera/rgb/image_rect_color"
 depth_namespace: "/camera/depth_registered/hw_registered/image_rect"
 
 # Video name, if you provide a video name with path algorithm will run on it, otherwise write "no" for getting from camera 
-video_name: "/home/cag/dataset/OneDrive_2_1-19-2018/MSRDailyAct3D_pack1/a01_s01_e01_rgb.avi"
+video_name: "no"

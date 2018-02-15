@@ -65,7 +65,7 @@ If you also want to run the tracker,
 $ roslaunch cob_people_object_detection_tensorflow cob_people_object_tracker.launch
 ```
 
-Then, it starts assigning an ID to the each detected objects. Note that detected tracked object numbers may differ.
+Then, it starts assigning an ID to the each detected objects and publishes the results to /object_tracker/tracks. Note that detected tracked object numbers may differ.
 
 
 Example tracking result:
@@ -92,7 +92,7 @@ Example tracking result:
 ##### Publishes to:
 - /object_detection/detections (cob_perception_msgs/DetectionArray) Includes all the detections with probabilities, labels and bounding boxes
 - /object_detection/detections_image (sensor_msgs/Image) The image with bounding boxes
-- /object_detection/detections (cob_perception_msgs/DetectionArray) Includes just the tracked objects and their bounding boxes, labels. Here, ID is the detection id assigned by tracker. Example: DetectionArray.detections[0].id
+- /object_tracker/tracks (cob_perception_msgs/DetectionArray) Includes just the tracked objects and their bounding boxes, labels. Here, ID is the detection id assigned by tracker. Example: DetectionArray.detections[0].id
 
 ### Performance
 The five last detection times from my computer(Intel(R) Core(TM) i7-6820HK CPU @ 2.70GHz) in seconds:

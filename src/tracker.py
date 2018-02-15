@@ -150,11 +150,10 @@ class PeopleObjectTrackerNode(object):
                     detections.detections.append(detections_copy[j-1])
 
 
-            self.pub_trackers.publish(detections)
-
-
         else:
             print "No tracked objects!"
+
+        self.pub_trackers.publish(detections)
 
 
 def main():

@@ -40,7 +40,7 @@ class PeopleObjectTrackerNode(object):
         rospy.init_node('people_object_tracker', anonymous=False)
 
         # Get the parameters
-        (camera_topic, detection_topic, tracker_topic, cost_threshold) = \
+        (detection_topic, tracker_topic, cost_threshold) = \
             self.get_parameters()
 
         self._bridge = CvBridge()
@@ -53,14 +53,13 @@ class PeopleObjectTrackerNode(object):
         sub_detection = message_filters.Subscriber(detection_topic, \
             DetectionArray)
 
-        sub_rgb = message_filters.Subscriber(camera_topic, Image)
+        #sub_rgb = message_filters.Subscriber(camera_topic, Image)
 
         # Advertise the result of Object Tracker
-        self.pub_detections = rospy.Publisher(tracker_topic, \
+        self.pub_trackers = rospy.Publisher(tracker_topic, \
             DetectionArray, queue_size=1)
 
-        ts = message_filters.ApproximateTimeSynchronizer([sub_detection, \
-            sub_rgb], 2, 0.20)
+        ts = message_filters.ApproximateTimeSynchronizer([sub_detection], 1, 0.001)
 
         ts.registerCallback(self.detection_callback)
 
@@ -78,12 +77,11 @@ class PeopleObjectTrackerNode(object):
 
         """
 
-        camera_topic  = rospy.get_param("~camera_topic")
         detection_topic  = rospy.get_param("~detection_topic")
         tracker_topic = rospy.get_param('~tracker_topic')
         cost_threhold = rospy.get_param('~cost_threhold')
 
-        return (camera_topic, detection_topic, tracker_topic, cost_threhold)
+        return (detection_topic, tracker_topic, cost_threhold)
 
 
     def shutdown(self):
@@ -92,7 +90,7 @@ class PeopleObjectTrackerNode(object):
         """
         rospy.signal_shutdown("See ya!")
 
-    def detection_callback(self, detections, image):
+    def detection_callback(self, detections):
         """
         Callback for RGB images
         Args:
@@ -102,7 +100,7 @@ class PeopleObjectTrackerNode(object):
 
         """
 
-        cv_rgb = self._bridge.imgmsg_to_cv2(image, "passthrough")
+        #cv_rgb = self._bridge.imgmsg_to_cv2(image, "passthrough")
 
         # Dummy detection
         # TODO: Find a better way
@@ -120,8 +118,12 @@ class PeopleObjectTrackerNode(object):
                     [x, y, width, height, score]))
 
         # Call the tracker
-        tracks = self.tracker.update(det_list, cv_rgb)
+        tracks = self.tracker.update(det_list)
 
+        # Copy the detections
+        detections_copy = detections.detections
+
+        detections.detections = []
 
         if len(det_list) > 1:
 
@@ -140,9 +142,19 @@ class PeopleObjectTrackerNode(object):
             for i, j in zip(row_ind, col_ind):
                 if C[i, j] < self.cost_threshold and j != 0:
                     print("{} -> {} with cost {}".\
-                        format(tracks[i, 4], detections.detections[j-1].label,\
+                        format(tracks[i, 4], detections_copy[j-1].label,\
                         C[i,j]))
-        print "hey"
+
+                    detections_copy[j-1].id = int(tracks[i, 4])
+
+                    detections.detections.append(detections_copy[j-1])
+
+
+            self.pub_trackers.publish(detections)
+
+
+        else:
+            print "No tracked objects!"
 
 
 def main():

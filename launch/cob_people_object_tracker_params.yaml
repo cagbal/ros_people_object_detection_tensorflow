@@ -1,10 +1,7 @@
-# Set your RGB image topic here
-camera_topic: "/camera/rgb/image_rect_color"
-
 # Set your detection topic here
 detection_topic: "/object_detection/detections"
 
-# Set your output topic here 
+# Set your output topic here
 tracker_topic: "/object_tracker/tracks"
 
 # Threshold for Costs between detections and tracks

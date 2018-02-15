@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+
+<launch>
+  <node name="cob_people_object_detection_tracker" pkg="cob_people_object_detection_tensorflow" type="tracker.py" output="screen">
+    <rosparam command="load" file="$(find cob_people_object_detection_tensorflow)/launch/cob_people_object_tracker_params.yaml"/>
+  </node>
+</launch>

@@ -40,30 +40,20 @@ class PeopleObjectTrackerNode(object):
         rospy.init_node('people_object_tracker', anonymous=False)
 
         # Get the parameters
-        (detection_topic, tracker_topic, cost_threshold) = \
+        (detection_topic, tracker_topic, cost_threshold, max_age, min_hits) = \
             self.get_parameters()
 
         self._bridge = CvBridge()
 
-        self.tracker =  sort.Sort()
+        self.tracker =  sort.Sort(max_age=max_age, min_hits=min_hits)
 
         self.cost_threshold = cost_threshold
-
-        # Subscribe to the face positions
-        #sub_detection = message_filters.Subscriber(detection_topic, \
-        #    DetectionArray)
-
-        #sub_rgb = message_filters.Subscriber(camera_topic, Image)
 
         # Advertise the result of Object Tracker
         self.pub_trackers = rospy.Publisher(tracker_topic, \
             DetectionArray, queue_size=1)
 
-        #ts = message_filters.ApproximateTimeSynchronizer([sub_detection], 1, 0.001)
-
         self.sub_detection = rospy.Subscriber(detection_topic, DetectionArray, self.detection_callback)
-
-        #ts.registerCallback(self.detection_callback)
 
         # spin
         rospy.spin()
@@ -82,8 +72,10 @@ class PeopleObjectTrackerNode(object):
         detection_topic  = rospy.get_param("~detection_topic")
         tracker_topic = rospy.get_param('~tracker_topic')
         cost_threhold = rospy.get_param('~cost_threhold')
+        min_hits = rospy.get_param('~min_hits')
+        max_age = rospy.get_param('~max_age')
 
-        return (detection_topic, tracker_topic, cost_threhold)
+        return (detection_topic, tracker_topic, cost_threhold, max_age, min_hits)
 
 
     def shutdown(self):

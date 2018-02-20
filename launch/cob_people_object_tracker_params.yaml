@@ -6,3 +6,9 @@ tracker_topic: "/object_tracker/tracks"
 
 # Threshold for Costs between detections and tracks
 cost_threhold: 15
+
+# min_hits
+min_hits: 1
+
+# max age
+max_age: 1

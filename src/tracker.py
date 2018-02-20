@@ -50,8 +50,8 @@ class PeopleObjectTrackerNode(object):
         self.cost_threshold = cost_threshold
 
         # Subscribe to the face positions
-        sub_detection = message_filters.Subscriber(detection_topic, \
-            DetectionArray)
+        #sub_detection = message_filters.Subscriber(detection_topic, \
+        #    DetectionArray)
 
         #sub_rgb = message_filters.Subscriber(camera_topic, Image)
 
@@ -59,9 +59,11 @@ class PeopleObjectTrackerNode(object):
         self.pub_trackers = rospy.Publisher(tracker_topic, \
             DetectionArray, queue_size=1)
 
-        ts = message_filters.ApproximateTimeSynchronizer([sub_detection], 1, 0.001)
+        #ts = message_filters.ApproximateTimeSynchronizer([sub_detection], 1, 0.001)
 
-        ts.registerCallback(self.detection_callback)
+        self.sub_detection = rospy.Subscriber(detection_topic, DetectionArray, self.detection_callback)
+
+        #ts.registerCallback(self.detection_callback)
 
         # spin
         rospy.spin()

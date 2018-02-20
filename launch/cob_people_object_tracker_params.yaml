@@ -12,3 +12,6 @@ min_hits: 1
 
 # max age
 max_age: 1
+
+# labels to track
+labels: ["person", "chair"]

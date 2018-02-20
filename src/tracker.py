@@ -40,7 +40,8 @@ class PeopleObjectTrackerNode(object):
         rospy.init_node('people_object_tracker', anonymous=False)
 
         # Get the parameters
-        (detection_topic, tracker_topic, cost_threshold, max_age, min_hits) = \
+        (detection_topic, tracker_topic, cost_threshold, \
+            max_age, min_hits, labels) = \
             self.get_parameters()
 
         self._bridge = CvBridge()
@@ -48,6 +49,8 @@ class PeopleObjectTrackerNode(object):
         self.tracker =  sort.Sort(max_age=max_age, min_hits=min_hits)
 
         self.cost_threshold = cost_threshold
+
+        self.labels = labels
 
         # Advertise the result of Object Tracker
         self.pub_trackers = rospy.Publisher(tracker_topic, \
@@ -74,8 +77,10 @@ class PeopleObjectTrackerNode(object):
         cost_threhold = rospy.get_param('~cost_threhold')
         min_hits = rospy.get_param('~min_hits')
         max_age = rospy.get_param('~max_age')
+        labels = rospy.get_param("~labels")
 
-        return (detection_topic, tracker_topic, cost_threhold, max_age, min_hits)
+        return (detection_topic, tracker_topic, cost_threhold, \
+            max_age, min_hits, labels)
 
 
     def shutdown(self):
@@ -101,15 +106,19 @@ class PeopleObjectTrackerNode(object):
         det_list = numpy.array([[0, 0, 1, 1, 0.01]])
 
         if len(detections.detections) > 0:
-            for detection in detections.detections:
-                x =  detection.mask.roi.x
-                y = detection.mask.roi.y
-                width =  detection.mask.roi.width
-                height = detection.mask.roi.height
-                score = detection.score
+            for i, detection in enumerate(detections.detections):
 
-                det_list = numpy.vstack((det_list, \
-                    [x, y, width, height, score]))
+                if detection.label in self.labels:
+                    x =  detection.mask.roi.x
+                    y = detection.mask.roi.y
+                    width =  detection.mask.roi.width
+                    height = detection.mask.roi.height
+                    score = detection.score
+
+                    det_list = numpy.vstack((det_list, \
+                        [x, y, width, height, score]))
+                else:
+                    del detections.detections[i]
 
         # Call the tracker
         tracks = self.tracker.update(det_list)

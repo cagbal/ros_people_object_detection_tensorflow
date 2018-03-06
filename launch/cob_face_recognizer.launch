@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+
+<launch>
+  <node name="cob_face_recognizer" pkg="cob_people_object_detection_tensorflow" type="face_recognizer.py" output="screen">
+    <rosparam command="load" file="$(find cob_people_object_detection_tensorflow)/launch/cob_face_recognizer_params.yaml"/>
+  </node>
+</launch>

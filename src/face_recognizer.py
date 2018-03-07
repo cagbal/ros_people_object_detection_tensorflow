@@ -188,11 +188,9 @@ class FaceRecognitionNode(object):
                             cv2.rectangle(image, (x, y), \
                             (x + width, y + height), (255, 0, 0), 3)
 
-                            font = cv2.FONT_HERSHEY_DUPLEX
-
                             cv2.putText(image, self.database[1][ind], \
-                            (l + 2, b - 2), \
-                            font, 1.0, (255, 255, 255), 1)
+                            (l + 2, t + 2), \
+                            cv2.FONT_HERSHEY_DUPLEX, 1.0, (0, 0, 0), 1)
 
                 except Exception as e:
                     print e
@@ -251,7 +249,7 @@ class FaceRecognitionNode(object):
 
             people_list.append(fr.face_encodings(im)[0])
 
-            name_list.append(f.split('/')[-1])
+            name_list.append(f.split('/')[-1].split('.')[0])
 
             cv2.destroyAllWindows()
 

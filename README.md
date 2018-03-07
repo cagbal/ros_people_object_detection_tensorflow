@@ -4,10 +4,16 @@ ROS(Robot Operating System) port of Tensorflow Object Detection API
 
 The codes are based on jupyter notebook inside of the object detection API.
 
-# NOTE: The code can now track the detections by using Sort tracker(Kalman based) thanks to [this repo](https://github.com/ZidanMusk/experimenting-with-sort)
-
 Sample frame:
 ![alt text](https://raw.githubusercontent.com/cagbal/cob_people_object_detection_tensorflow/master/images/screenshot.png)
+
+![alt text](https://raw.githubusercontent.com/cagbal/cob_people_object_detection_tensorflow/master/images/face_recog.png)
+
+
+
+# NOTE: Now, the code also recognizes the faces that in the scene by using amazing [face_recognition](https://github.com/ageitgey/face_recognition) library. Also, The code can now track the detections by using Sort tracker(Kalman based) thanks to [this repo](https://github.com/ZidanMusk/experimenting-with-sort). For licences, please check the licences of these repos as well.
+
+
 
 # Features
 
@@ -17,6 +23,7 @@ Sample frame:
   - Tracks the detected objects
   - Publishes the results as DetectionArray msg (same message format with Detection)
   - Parameters can be set fom a Yaml file
+  - Detects the faces inside the person area
 
 ### Tech
 
@@ -26,6 +33,7 @@ This repo uses a number of open source projects to work properly:
 * [Tensorflow-Object Detection API]
 * [ROS]
 * [Numpy]
+* [face_recognition] https://github.com/ageitgey/face_recognition
 
 For Tracker part:
 * scikit-learn
@@ -47,6 +55,7 @@ $ protoc object_detection/protos/*.proto --python_out=.
 $ cd ~/catkin_ws
 $ rosdep install --from-path src/ -y -i
 $ catkin_make
+$ pip install face_recognition
 ```
 
 ### Running
@@ -63,6 +72,12 @@ If you also want to run the tracker,
 
 ```sh
 $ roslaunch cob_people_object_detection_tensorflow cob_people_object_tracker.launch
+```
+
+If you also want to run the face_recognition,
+
+```sh
+$ roslaunch cob_people_object_detection_tensorflow cob_face_recognizer.launch
 ```
 
 Then, it starts assigning an ID to the each detected objects and publishes the results to /object_tracker/tracks. Note that detected tracked object numbers may differ.
@@ -83,8 +98,6 @@ Example tracking result:
 445.0 -> person with cost 8.35561352346
 439.0 -> chair with cost 2.41282210935
 ```
-
-
 
 ##### Subscibes to:
 - To any RGB image topic that you set in *params.yaml file.

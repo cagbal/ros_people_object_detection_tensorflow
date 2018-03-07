@@ -4,7 +4,7 @@ ROS(Robot Operating System) port of Tensorflow Object Detection API
 
 The codes are based on jupyter notebook inside of the object detection API.
 
-Sample frame:
+
 ![alt text](https://raw.githubusercontent.com/cagbal/cob_people_object_detection_tensorflow/master/images/screenshot.png)
 
 ![alt text](https://raw.githubusercontent.com/cagbal/cob_people_object_detection_tensorflow/master/images/face_recog.png)
@@ -75,6 +75,8 @@ $ roslaunch cob_people_object_detection_tensorflow cob_people_object_tracker.lau
 ```
 
 If you also want to run the face_recognition,
+
+(Put some images or use the existing ones in images folder. Btw, I just got images from internet so, please don't use them for commercial purposes.)
 
 ```sh
 $ roslaunch cob_people_object_detection_tensorflow cob_face_recognizer.launch

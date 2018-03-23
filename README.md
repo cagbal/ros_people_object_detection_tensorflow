@@ -1,17 +1,17 @@
 # cob_people_object_detection_tensorflow
 
-ROS(Robot Operating System) port of Tensorflow Object Detection API
+An extensive ROS toolbox for object detection and face recognition
 
 The codes are based on jupyter notebook inside of the object detection API.
 
+Sample frame:
+![alt text](https://github.com/cagbal/ros_people_object_detection_tensorflow/master/images/objects.gif?raw=true)
 
-![alt text](https://raw.githubusercontent.com/cagbal/cob_people_object_detection_tensorflow/master/images/screenshot.png)
-
-![alt text](https://raw.githubusercontent.com/cagbal/cob_people_object_detection_tensorflow/master/images/face_recog.png)
+![alt text](https://github.com/cagbal/ros_people_object_detection_tensorflow/master/images/people.gif?raw=true)
 
 
 
-# NOTE: Now, the code also recognizes the faces that in the scene by using amazing [face_recognition](https://github.com/ageitgey/face_recognition) library. Also, The code can now track the detections by using Sort tracker(Kalman based) thanks to [this repo](https://github.com/ZidanMusk/experimenting-with-sort). For licences, please check the licences of these repos as well.
+NOTE: Now, the code also recognizes the faces that in the scene by using amazing [face_recognition](https://github.com/ageitgey/face_recognition) library. Also, The code can now track the detections by using Sort tracker(Kalman based) thanks to [this repo](https://github.com/ZidanMusk/experimenting-with-sort). For licences, please check the licences of these repos as well. 
 
 
 
@@ -55,7 +55,7 @@ $ protoc object_detection/protos/*.proto --python_out=.
 $ cd ~/catkin_ws
 $ rosdep install --from-path src/ -y -i
 $ catkin_make
-$ pip install face_recognition
+$ pip install face_recognition 
 ```
 
 ### Running
@@ -75,8 +75,6 @@ $ roslaunch cob_people_object_detection_tensorflow cob_people_object_tracker.lau
 ```
 
 If you also want to run the face_recognition,
-
-(Put some images or use the existing ones in images folder. Btw, I just got images from internet so, please don't use them for commercial purposes.)
 
 ```sh
 $ roslaunch cob_people_object_detection_tensorflow cob_face_recognizer.launch
@@ -120,4 +118,5 @@ The five last detection times from my computer(Intel(R) Core(TM) i7-6820HK CPU @
 License
 ----
 
-Apache (but please also look at tensorflow and tf object detection licences)
+Apache (but please also look at tensorflow, tf object detection, face_recognition and dlib licences)
+

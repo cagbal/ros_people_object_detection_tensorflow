@@ -5,9 +5,9 @@ An extensive ROS toolbox for object detection and face recognition
 The codes are based on jupyter notebook inside of the object detection API.
 
 Sample frame:
-![alt text](https://github.com/cagbal/ros_people_object_detection_tensorflow/master/images/objects.gif?raw=true)
+![alt text](https://github.com/cagbal/ros_people_object_detection_tensorflow/blob/master/images/objects.gif?raw=true)
 
-![alt text](https://github.com/cagbal/ros_people_object_detection_tensorflow/master/images/people.gif?raw=true)
+![alt text](https://github.com/cagbal/ros_people_object_detection_tensorflow/blob/master/images/people.gif?raw=true)
 
 
 

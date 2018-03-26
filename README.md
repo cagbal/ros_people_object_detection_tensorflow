@@ -76,6 +76,8 @@ $ roslaunch cob_people_object_detection_tensorflow cob_people_object_tracker.lau
 
 If you also want to run the face_recognition,
 
+Just put one picture for each individual inside people folder, then the program will read those images and create a database. The name of the file will be the name of individual. For example, my image is "cagatay.png". If program sees me, it says I am "cagatay". There are some images of mine and two others collected from internet in the people folder.
+
 ```sh
 $ roslaunch cob_people_object_detection_tensorflow cob_face_recognizer.launch
 ```

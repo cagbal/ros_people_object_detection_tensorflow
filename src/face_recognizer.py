@@ -173,28 +173,29 @@ class FaceRecognitionNode(object):
                         r = y + right
                         b = x + bottom
 
+                        detection.label = "Unknown"
+
                         if True in matches:
                             ind = matches.index(True)
-
-                            # Modify the message
-                            detection.mask.roi.x  = t/self.scaling_factor
-                            detection.mask.roi.y = l/self.scaling_factor
-                            detection.mask.roi.width = (t -b)/self.scaling_factor
-                            detection.mask.roi.height = (r - l)/self.scaling_factor
-
                             detection.label = self.database[1][ind]
 
-                            # Draw bounding boxes on current image
+                        # Modify the message
+                        detection.mask.roi.x  = t/self.scaling_factor
+                        detection.mask.roi.y = l/self.scaling_factor
+                        detection.mask.roi.width = (t -b)/self.scaling_factor
+                        detection.mask.roi.height = (r - l)/self.scaling_factor
 
-                            cv2.rectangle(image, (l, t), \
-                            (r, b), (0, 0, 255), 2)
+                        # Draw bounding boxes on current image
 
-                            cv2.rectangle(image, (x, y), \
-                            (x + width, y + height), (255, 0, 0), 3)
+                        cv2.rectangle(image, (l, t), \
+                        (r, b), (0, 0, 255), 2)
 
-                            cv2.putText(image, self.database[1][ind], \
-                            (l + 2, t + 2), \
-                            cv2.FONT_HERSHEY_DUPLEX, 1.0, (0, 0, 0), 1)
+                        cv2.rectangle(image, (x, y), \
+                        (x + width, y + height), (255, 0, 0), 3)
+
+                        cv2.putText(image, detection.label, \
+                        (l + 2, t + 2), \
+                        cv2.FONT_HERSHEY_DUPLEX, 1.0, (0, 0, 0), 1)
 
                 except Exception as e:
                     print e

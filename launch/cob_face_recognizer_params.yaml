@@ -6,3 +6,6 @@ camera_topic: "/camera/rgb/image_rect_color"
 
 # Set your output topic here
 output_topic: "/face_recognizer/faces"
+
+# Set your output topic for RGB Image here
+output_topic_rgb: "/face_recognizer/faces/image"

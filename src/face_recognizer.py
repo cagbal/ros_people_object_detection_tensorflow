@@ -46,13 +46,17 @@ class FaceRecognitionNode(object):
         rospy.init_node('face_recognition_node', anonymous=False)
 
         # Get the parameters
-        (image_topic, detection_topic, output_topic) = self.get_parameters()
+        (image_topic, detection_topic, output_topic, output_topic_rgb) = self.get_parameters()
 
         self._bridge = CvBridge()
 
         # Advertise the result of Object Tracker
         self.pub_det = rospy.Publisher(output_topic, \
             DetectionArray, queue_size=1)
+
+        self.pub_det_rgb = rospy.Publisher(output_topic_rgb, \
+            Image, queue_size=1)
+
 
         self.sub_detection = message_filters.Subscriber(detection_topic, \
             DetectionArray)
@@ -86,8 +90,9 @@ class FaceRecognitionNode(object):
         camera_topic = rospy.get_param("~camera_topic")
         detection_topic = rospy.get_param("~detection_topic")
         output_topic = rospy.get_param("~output_topic")
+        output_topic_rgb = rospy.get_param("~output_topic_rgb")
 
-        return (camera_topic, detection_topic, output_topic)
+        return (camera_topic, detection_topic, output_topic, output_topic_rgb)
 
 
     def shutdown(self):
@@ -115,11 +120,10 @@ class FaceRecognitionNode(object):
 
         (cv_rgb, detections) = self.recognize(detections, cv_rgb)
 
-        cv2.imshow("", cv_rgb)
+        image_outgoing = self._bridge.cv2_to_imgmsg(cv_rgb, encoding="passthrough")
 
-        cv2.waitKey(1)
+        self.publish(detections, image_outgoing)
 
-        self.publish(detections)
 
     def recognize(self, detections, image):
         """
@@ -197,19 +201,20 @@ class FaceRecognitionNode(object):
 
         return (image, detections)
 
-    def publish(self, detections):
+    def publish(self, detections, image_outgoing):
         """
         Creates the ros messages and publishes them
 
         Args:
         (DetectionArray) detections: incoming detections
-        (publisher) pub_det: Publisher object
+        (publisher) image_outgoing: sensor_msgs/Image with face bounding boxes and labels
 
         Returns:
 
         """
 
         self.pub_det.publish(detections)
+        self.pub_det_rgb.publish(image_outgoing)
 
 
 

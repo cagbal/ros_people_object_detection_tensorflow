@@ -26,6 +26,7 @@ NOTE: Now, the code also recognizes the faces that in the scene by using amazing
   - Parameters can be set fom a Yaml file
   - Detects the faces inside the person area
   - TODO: you can currently use MASK RCNN, but it just publishes the mask drawn on the image, I am trying to publish the mask as a ROS message.
+  - TODO: I am no happy with tracking. There are some issues.
 
 ### Tech
 

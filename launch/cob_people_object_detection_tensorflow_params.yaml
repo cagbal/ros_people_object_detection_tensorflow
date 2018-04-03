@@ -1,5 +1,5 @@
 # name of the object detection model
-model_name: "ssd_mobilenet_v1_coco_11_06_2017"
+model_name: "ssd_inception_v2_coco_2017_11_17"
 
 # number of classes in dataset
 num_of_classes: 90

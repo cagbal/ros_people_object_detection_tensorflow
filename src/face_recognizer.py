@@ -69,7 +69,7 @@ class FaceRecognitionNode(object):
         self.database = self.initialize_database()
 
         ts = message_filters.ApproximateTimeSynchronizer(\
-            [self.sub_detection, self.sub_image], 2, 0.1)
+            [self.sub_detection, self.sub_image], 2, 0.2)
 
         ts.registerCallback(self.detection_callback)
 

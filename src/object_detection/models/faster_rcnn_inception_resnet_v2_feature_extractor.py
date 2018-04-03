@@ -37,6 +37,7 @@ class FasterRCNNInceptionResnetV2FeatureExtractor(
   def __init__(self,
                is_training,
                first_stage_features_stride,
+               batch_norm_trainable=False,
                reuse_weights=None,
                weight_decay=0.0):
     """Constructor.
@@ -44,6 +45,7 @@ class FasterRCNNInceptionResnetV2FeatureExtractor(
     Args:
       is_training: See base class.
       first_stage_features_stride: See base class.
+      batch_norm_trainable: See base class.
       reuse_weights: See base class.
       weight_decay: See base class.
 
@@ -53,7 +55,8 @@ class FasterRCNNInceptionResnetV2FeatureExtractor(
     if first_stage_features_stride != 8 and first_stage_features_stride != 16:
       raise ValueError('`first_stage_features_stride` must be 8 or 16.')
     super(FasterRCNNInceptionResnetV2FeatureExtractor, self).__init__(
-        is_training, first_stage_features_stride, reuse_weights, weight_decay)
+        is_training, first_stage_features_stride, batch_norm_trainable,
+        reuse_weights, weight_decay)
 
   def preprocess(self, resized_inputs):
     """Faster R-CNN with Inception Resnet v2 preprocessing.
@@ -98,15 +101,14 @@ class FasterRCNNInceptionResnetV2FeatureExtractor(
     with slim.arg_scope(inception_resnet_v2.inception_resnet_v2_arg_scope(
         weight_decay=self._weight_decay)):
       # Forces is_training to False to disable batch norm update.
-      with slim.arg_scope([slim.batch_norm], is_training=False):
+      with slim.arg_scope([slim.batch_norm],
+                          is_training=self._train_batch_norm):
         with tf.variable_scope('InceptionResnetV2',
                                reuse=self._reuse_weights) as scope:
-          rpn_feature_map, _ = (
-              inception_resnet_v2.inception_resnet_v2_base(
-                  preprocessed_inputs, final_endpoint='PreAuxLogits',
-                  scope=scope, output_stride=self._first_stage_features_stride,
-                  align_feature_maps=True))
-    return rpn_feature_map
+          return inception_resnet_v2.inception_resnet_v2_base(
+              preprocessed_inputs, final_endpoint='PreAuxLogits',
+              scope=scope, output_stride=self._first_stage_features_stride,
+              align_feature_maps=True)
 
   def _extract_box_classifier_features(self, proposal_feature_maps, scope):
     """Extracts second stage box classifier features.
@@ -129,7 +131,8 @@ class FasterRCNNInceptionResnetV2FeatureExtractor(
       with slim.arg_scope(inception_resnet_v2.inception_resnet_v2_arg_scope(
           weight_decay=self._weight_decay)):
         # Forces is_training to False to disable batch norm update.
-        with slim.arg_scope([slim.batch_norm], is_training=False):
+        with slim.arg_scope([slim.batch_norm],
+                            is_training=self._train_batch_norm):
           with slim.arg_scope([slim.conv2d, slim.max_pool2d, slim.avg_pool2d],
                               stride=1, padding='SAME'):
             with tf.variable_scope('Mixed_7a'):
@@ -175,7 +178,7 @@ class FasterRCNNInceptionResnetV2FeatureExtractor(
     faster_rcnn_meta_arch.FasterRCNNFeatureExtractor which does not work for
     InceptionResnetV2 checkpoints.
 
-    TODO: revisit whether it's possible to force the
+    TODO(jonathanhuang,rathodv): revisit whether it's possible to force the
     `Repeat` namescope as created in `_extract_box_classifier_features` to
     start counting at 2 (e.g. `Repeat_2`) so that the default restore_fn can
     be used.
@@ -207,3 +210,4 @@ class FasterRCNNInceptionResnetV2FeatureExtractor(
             second_stage_feature_extractor_scope + '/', '')
         variables_to_restore[var_name] = variable
     return variables_to_restore
+

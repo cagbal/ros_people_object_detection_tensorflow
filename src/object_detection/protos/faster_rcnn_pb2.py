@@ -25,7 +25,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   name='object_detection/protos/faster_rcnn.proto',
   package='object_detection.protos',
   syntax='proto2',
-  serialized_pb=_b('\n)object_detection/protos/faster_rcnn.proto\x12\x17object_detection.protos\x1a.object_detection/protos/anchor_generator.proto\x1a+object_detection/protos/box_predictor.proto\x1a)object_detection/protos/hyperparams.proto\x1a+object_detection/protos/image_resizer.proto\x1a$object_detection/protos/losses.proto\x1a-object_detection/protos/post_processing.proto\"\xa4\n\n\nFasterRcnn\x12\x1f\n\x10\x66irst_stage_only\x18\x01 \x01(\x08:\x05\x66\x61lse\x12\x13\n\x0bnum_classes\x18\x03 \x01(\x05\x12<\n\rimage_resizer\x18\x04 \x01(\x0b\x32%.object_detection.protos.ImageResizer\x12N\n\x11\x66\x65\x61ture_extractor\x18\x05 \x01(\x0b\x32\x33.object_detection.protos.FasterRcnnFeatureExtractor\x12N\n\x1c\x66irst_stage_anchor_generator\x18\x06 \x01(\x0b\x32(.object_detection.protos.AnchorGenerator\x12\"\n\x17\x66irst_stage_atrous_rate\x18\x07 \x01(\x05:\x01\x31\x12X\n*first_stage_box_predictor_conv_hyperparams\x18\x08 \x01(\x0b\x32$.object_detection.protos.Hyperparams\x12\x30\n%first_stage_box_predictor_kernel_size\x18\t \x01(\x05:\x01\x33\x12,\n\x1f\x66irst_stage_box_predictor_depth\x18\n \x01(\x05:\x03\x35\x31\x32\x12\'\n\x1a\x66irst_stage_minibatch_size\x18\x0b \x01(\x05:\x03\x32\x35\x36\x12\x32\n%first_stage_positive_balance_fraction\x18\x0c \x01(\x02:\x03\x30.5\x12*\n\x1f\x66irst_stage_nms_score_threshold\x18\r \x01(\x02:\x01\x30\x12*\n\x1d\x66irst_stage_nms_iou_threshold\x18\x0e \x01(\x02:\x03\x30.7\x12&\n\x19\x66irst_stage_max_proposals\x18\x0f \x01(\x05:\x03\x33\x30\x30\x12/\n$first_stage_localization_loss_weight\x18\x10 \x01(\x02:\x01\x31\x12-\n\"first_stage_objectness_loss_weight\x18\x11 \x01(\x02:\x01\x31\x12\x19\n\x11initial_crop_size\x18\x12 \x01(\x05\x12\x1b\n\x13maxpool_kernel_size\x18\x13 \x01(\x05\x12\x16\n\x0emaxpool_stride\x18\x14 \x01(\x05\x12I\n\x1asecond_stage_box_predictor\x18\x15 \x01(\x0b\x32%.object_detection.protos.BoxPredictor\x12#\n\x17second_stage_batch_size\x18\x16 \x01(\x05:\x02\x36\x34\x12+\n\x1dsecond_stage_balance_fraction\x18\x17 \x01(\x02:\x04\x30.25\x12M\n\x1csecond_stage_post_processing\x18\x18 \x01(\x0b\x32\'.object_detection.protos.PostProcessing\x12\x30\n%second_stage_localization_loss_weight\x18\x19 \x01(\x02:\x01\x31\x12\x32\n\'second_stage_classification_loss_weight\x18\x1a \x01(\x02:\x01\x31\x12\x45\n\x12hard_example_miner\x18\x1b \x01(\x0b\x32).object_detection.protos.HardExampleMiner\"S\n\x1a\x46\x61sterRcnnFeatureExtractor\x12\x0c\n\x04type\x18\x01 \x01(\t\x12\'\n\x1b\x66irst_stage_features_stride\x18\x02 \x01(\x05:\x02\x31\x36')
+  serialized_pb=_b('\n)object_detection/protos/faster_rcnn.proto\x12\x17object_detection.protos\x1a.object_detection/protos/anchor_generator.proto\x1a+object_detection/protos/box_predictor.proto\x1a)object_detection/protos/hyperparams.proto\x1a+object_detection/protos/image_resizer.proto\x1a$object_detection/protos/losses.proto\x1a-object_detection/protos/post_processing.proto\"\xac\x0b\n\nFasterRcnn\x12\x1b\n\x10number_of_stages\x18\x01 \x01(\x05:\x01\x32\x12\x13\n\x0bnum_classes\x18\x03 \x01(\x05\x12<\n\rimage_resizer\x18\x04 \x01(\x0b\x32%.object_detection.protos.ImageResizer\x12N\n\x11\x66\x65\x61ture_extractor\x18\x05 \x01(\x0b\x32\x33.object_detection.protos.FasterRcnnFeatureExtractor\x12N\n\x1c\x66irst_stage_anchor_generator\x18\x06 \x01(\x0b\x32(.object_detection.protos.AnchorGenerator\x12\"\n\x17\x66irst_stage_atrous_rate\x18\x07 \x01(\x05:\x01\x31\x12X\n*first_stage_box_predictor_conv_hyperparams\x18\x08 \x01(\x0b\x32$.object_detection.protos.Hyperparams\x12\x30\n%first_stage_box_predictor_kernel_size\x18\t \x01(\x05:\x01\x33\x12,\n\x1f\x66irst_stage_box_predictor_depth\x18\n \x01(\x05:\x03\x35\x31\x32\x12\'\n\x1a\x66irst_stage_minibatch_size\x18\x0b \x01(\x05:\x03\x32\x35\x36\x12\x32\n%first_stage_positive_balance_fraction\x18\x0c \x01(\x02:\x03\x30.5\x12*\n\x1f\x66irst_stage_nms_score_threshold\x18\r \x01(\x02:\x01\x30\x12*\n\x1d\x66irst_stage_nms_iou_threshold\x18\x0e \x01(\x02:\x03\x30.7\x12&\n\x19\x66irst_stage_max_proposals\x18\x0f \x01(\x05:\x03\x33\x30\x30\x12/\n$first_stage_localization_loss_weight\x18\x10 \x01(\x02:\x01\x31\x12-\n\"first_stage_objectness_loss_weight\x18\x11 \x01(\x02:\x01\x31\x12\x19\n\x11initial_crop_size\x18\x12 \x01(\x05\x12\x1b\n\x13maxpool_kernel_size\x18\x13 \x01(\x05\x12\x16\n\x0emaxpool_stride\x18\x14 \x01(\x05\x12I\n\x1asecond_stage_box_predictor\x18\x15 \x01(\x0b\x32%.object_detection.protos.BoxPredictor\x12#\n\x17second_stage_batch_size\x18\x16 \x01(\x05:\x02\x36\x34\x12+\n\x1dsecond_stage_balance_fraction\x18\x17 \x01(\x02:\x04\x30.25\x12M\n\x1csecond_stage_post_processing\x18\x18 \x01(\x0b\x32\'.object_detection.protos.PostProcessing\x12\x30\n%second_stage_localization_loss_weight\x18\x19 \x01(\x02:\x01\x31\x12\x32\n\'second_stage_classification_loss_weight\x18\x1a \x01(\x02:\x01\x31\x12\x33\n(second_stage_mask_prediction_loss_weight\x18\x1b \x01(\x02:\x01\x31\x12\x45\n\x12hard_example_miner\x18\x1c \x01(\x0b\x32).object_detection.protos.HardExampleMiner\x12U\n second_stage_classification_loss\x18\x1d \x01(\x0b\x32+.object_detection.protos.ClassificationLoss\"x\n\x1a\x46\x61sterRcnnFeatureExtractor\x12\x0c\n\x04type\x18\x01 \x01(\t\x12\'\n\x1b\x66irst_stage_features_stride\x18\x02 \x01(\x05:\x02\x31\x36\x12#\n\x14\x62\x61tch_norm_trainable\x18\x03 \x01(\x08:\x05\x66\x61lse')
   ,
   dependencies=[object__detection_dot_protos_dot_anchor__generator__pb2.DESCRIPTOR,object__detection_dot_protos_dot_box__predictor__pb2.DESCRIPTOR,object__detection_dot_protos_dot_hyperparams__pb2.DESCRIPTOR,object__detection_dot_protos_dot_image__resizer__pb2.DESCRIPTOR,object__detection_dot_protos_dot_losses__pb2.DESCRIPTOR,object__detection_dot_protos_dot_post__processing__pb2.DESCRIPTOR,])
 
@@ -40,9 +40,9 @@ _FASTERRCNN = _descriptor.Descriptor(
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='first_stage_only', full_name='object_detection.protos.FasterRcnn.first_stage_only', index=0,
-      number=1, type=8, cpp_type=7, label=1,
-      has_default_value=True, default_value=False,
+      name='number_of_stages', full_name='object_detection.protos.FasterRcnn.number_of_stages', index=0,
+      number=1, type=5, cpp_type=1, label=1,
+      has_default_value=True, default_value=2,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
@@ -215,8 +215,22 @@ _FASTERRCNN = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
-      name='hard_example_miner', full_name='object_detection.protos.FasterRcnn.hard_example_miner', index=25,
-      number=27, type=11, cpp_type=10, label=1,
+      name='second_stage_mask_prediction_loss_weight', full_name='object_detection.protos.FasterRcnn.second_stage_mask_prediction_loss_weight', index=25,
+      number=27, type=2, cpp_type=6, label=1,
+      has_default_value=True, default_value=float(1),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='hard_example_miner', full_name='object_detection.protos.FasterRcnn.hard_example_miner', index=26,
+      number=28, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='second_stage_classification_loss', full_name='object_detection.protos.FasterRcnn.second_stage_classification_loss', index=27,
+      number=29, type=11, cpp_type=10, label=1,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
@@ -234,7 +248,7 @@ _FASTERRCNN = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=337,
-  serialized_end=1653,
+  serialized_end=1789,
 )
 
 
@@ -259,6 +273,13 @@ _FASTERRCNNFEATUREEXTRACTOR = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
+    _descriptor.FieldDescriptor(
+      name='batch_norm_trainable', full_name='object_detection.protos.FasterRcnnFeatureExtractor.batch_norm_trainable', index=2,
+      number=3, type=8, cpp_type=7, label=1,
+      has_default_value=True, default_value=False,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
   ],
   extensions=[
   ],
@@ -271,8 +292,8 @@ _FASTERRCNNFEATUREEXTRACTOR = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1655,
-  serialized_end=1738,
+  serialized_start=1791,
+  serialized_end=1911,
 )
 
 _FASTERRCNN.fields_by_name['image_resizer'].message_type = object__detection_dot_protos_dot_image__resizer__pb2._IMAGERESIZER
@@ -282,6 +303,7 @@ _FASTERRCNN.fields_by_name['first_stage_box_predictor_conv_hyperparams'].message
 _FASTERRCNN.fields_by_name['second_stage_box_predictor'].message_type = object__detection_dot_protos_dot_box__predictor__pb2._BOXPREDICTOR
 _FASTERRCNN.fields_by_name['second_stage_post_processing'].message_type = object__detection_dot_protos_dot_post__processing__pb2._POSTPROCESSING
 _FASTERRCNN.fields_by_name['hard_example_miner'].message_type = object__detection_dot_protos_dot_losses__pb2._HARDEXAMPLEMINER
+_FASTERRCNN.fields_by_name['second_stage_classification_loss'].message_type = object__detection_dot_protos_dot_losses__pb2._CLASSIFICATIONLOSS
 DESCRIPTOR.message_types_by_name['FasterRcnn'] = _FASTERRCNN
 DESCRIPTOR.message_types_by_name['FasterRcnnFeatureExtractor'] = _FASTERRCNNFEATUREEXTRACTOR
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)

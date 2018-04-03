@@ -19,6 +19,7 @@ import tensorflow as tf
 
 from object_detection.core import standard_fields as fields
 from object_detection.utils import ops
+from object_detection.utils import test_case
 
 
 class NormalizedToImageCoordinatesTest(tf.test.TestCase):
@@ -40,6 +41,18 @@ class NormalizedToImageCoordinatesTest(tf.test.TestCase):
                                            normalized_boxes_np})
 
     self.assertAllEqual(absolute_boxes, expected_boxes)
+
+
+class ReduceSumTrailingDimensions(tf.test.TestCase):
+
+  def test_reduce_sum_trailing_dimensions(self):
+    input_tensor = tf.placeholder(tf.float32, shape=[None, None, None])
+    reduced_tensor = ops.reduce_sum_trailing_dimensions(input_tensor, ndims=2)
+    with self.test_session() as sess:
+      reduced_np = sess.run(reduced_tensor,
+                            feed_dict={input_tensor: np.ones((2, 2, 2),
+                                                             np.float32)})
+    self.assertAllClose(reduced_np, 2 * np.ones((2, 2), np.float32))
 
 
 class MeshgridTest(tf.test.TestCase):
@@ -81,6 +94,30 @@ class MeshgridTest(tf.test.TestCase):
       # rounding.
       self.assertEqual(xgrid_output[yind + xind], x[xind])
       self.assertEqual(ygrid_output[yind + xind], y[yind])
+
+
+class OpsTestFixedPadding(tf.test.TestCase):
+
+  def test_3x3_kernel(self):
+    tensor = tf.constant([[[[0.], [0.]], [[0.], [0.]]]])
+    padded_tensor = ops.fixed_padding(tensor, 3)
+    with self.test_session() as sess:
+      padded_tensor_out = sess.run(padded_tensor)
+    self.assertEqual((1, 4, 4, 1), padded_tensor_out.shape)
+
+  def test_5x5_kernel(self):
+    tensor = tf.constant([[[[0.], [0.]], [[0.], [0.]]]])
+    padded_tensor = ops.fixed_padding(tensor, 5)
+    with self.test_session() as sess:
+      padded_tensor_out = sess.run(padded_tensor)
+    self.assertEqual((1, 6, 6, 1), padded_tensor_out.shape)
+
+  def test_3x3_atrous_kernel(self):
+    tensor = tf.constant([[[[0.], [0.]], [[0.], [0.]]]])
+    padded_tensor = ops.fixed_padding(tensor, 3, 2)
+    with self.test_session() as sess:
+      padded_tensor_out = sess.run(padded_tensor)
+    self.assertEqual((1, 6, 6, 1), padded_tensor_out.shape)
 
 
 class OpsTestPadToMultiple(tf.test.TestCase):
@@ -602,6 +639,64 @@ class RetainGroundTruthWithPositiveClasses(tf.test.TestCase):
         self.assertAllEqual(expected_tensors[key], output_tensors[key])
 
 
+class ReplaceNaNGroundtruthLabelScoresWithOnes(tf.test.TestCase):
+
+  def test_replace_nan_groundtruth_label_scores_with_ones(self):
+    label_scores = tf.constant([np.nan, 1.0, np.nan])
+    output_tensor = ops.replace_nan_groundtruth_label_scores_with_ones(
+        label_scores)
+    expected_tensor = [1.0, 1.0, 1.0]
+    with self.test_session():
+      output_tensor = output_tensor.eval()
+      self.assertAllClose(expected_tensor, output_tensor)
+
+  def test_input_equals_output_when_no_nans(self):
+    input_label_scores = [0.5, 1.0, 1.0]
+    label_scores_tensor = tf.constant(input_label_scores)
+    output_label_scores = ops.replace_nan_groundtruth_label_scores_with_ones(
+        label_scores_tensor)
+    with self.test_session():
+      output_label_scores = output_label_scores.eval()
+      self.assertAllClose(input_label_scores, output_label_scores)
+
+
+class GroundtruthFilterWithCrowdBoxesTest(tf.test.TestCase):
+
+  def test_filter_groundtruth_with_crowd_boxes(self):
+    input_tensors = {
+        fields.InputDataFields.groundtruth_boxes:
+        [[0.1, 0.2, 0.6, 0.8], [0.2, 0.4, 0.1, 0.8]],
+        fields.InputDataFields.groundtruth_classes:
+        [1, 2],
+        fields.InputDataFields.groundtruth_is_crowd:
+        [True, False],
+        fields.InputDataFields.groundtruth_area:
+        [100.0, 238.7]
+    }
+
+    expected_tensors = {
+        fields.InputDataFields.groundtruth_boxes:
+        [[0.2, 0.4, 0.1, 0.8]],
+        fields.InputDataFields.groundtruth_classes:
+        [2],
+        fields.InputDataFields.groundtruth_is_crowd:
+        [False],
+        fields.InputDataFields.groundtruth_area:
+        [238.7]
+    }
+
+    output_tensors = ops.filter_groundtruth_with_crowd_boxes(
+        input_tensors)
+    with self.test_session() as sess:
+      output_tensors = sess.run(output_tensors)
+      for key in [fields.InputDataFields.groundtruth_boxes,
+                  fields.InputDataFields.groundtruth_area]:
+        self.assertAllClose(expected_tensors[key], output_tensors[key])
+      for key in [fields.InputDataFields.groundtruth_classes,
+                  fields.InputDataFields.groundtruth_is_crowd]:
+        self.assertAllEqual(expected_tensors[key], output_tensors[key])
+
+
 class GroundtruthFilterWithNanBoxTest(tf.test.TestCase):
 
   def test_filter_groundtruth_with_nan_box_coordinates(self):
@@ -1027,6 +1122,230 @@ class ReframeBoxMasksToImageMasksTest(tf.test.TestCase):
     with self.test_session() as sess:
       np_image_masks = sess.run(image_masks)
       self.assertAllClose(np_image_masks, np_expected_image_masks)
+
+
+class MergeBoxesWithMultipleLabelsTest(tf.test.TestCase):
+
+  def testMergeBoxesWithMultipleLabels(self):
+    boxes = tf.constant(
+        [[0.25, 0.25, 0.75, 0.75], [0.0, 0.0, 0.5, 0.75],
+         [0.25, 0.25, 0.75, 0.75]],
+        dtype=tf.float32)
+    class_indices = tf.constant([0, 4, 2], dtype=tf.int32)
+    num_classes = 5
+    merged_boxes, merged_classes, merged_box_indices = (
+        ops.merge_boxes_with_multiple_labels(boxes, class_indices, num_classes))
+    expected_merged_boxes = np.array(
+        [[0.25, 0.25, 0.75, 0.75], [0.0, 0.0, 0.5, 0.75]], dtype=np.float32)
+    expected_merged_classes = np.array(
+        [[1, 0, 1, 0, 0], [0, 0, 0, 0, 1]], dtype=np.int32)
+    expected_merged_box_indices = np.array([0, 1], dtype=np.int32)
+    with self.test_session() as sess:
+      np_merged_boxes, np_merged_classes, np_merged_box_indices = sess.run(
+          [merged_boxes, merged_classes, merged_box_indices])
+      if np_merged_classes[0, 0] != 1:
+        expected_merged_boxes = expected_merged_boxes[::-1, :]
+        expected_merged_classes = expected_merged_classes[::-1, :]
+        expected_merged_box_indices = expected_merged_box_indices[::-1, :]
+      self.assertAllClose(np_merged_boxes, expected_merged_boxes)
+      self.assertAllClose(np_merged_classes, expected_merged_classes)
+      self.assertAllClose(np_merged_box_indices, expected_merged_box_indices)
+
+  def testMergeBoxesWithEmptyInputs(self):
+    boxes = tf.constant([[]])
+    class_indices = tf.constant([])
+    num_classes = 5
+    merged_boxes, merged_classes, merged_box_indices = (
+        ops.merge_boxes_with_multiple_labels(boxes, class_indices, num_classes))
+    with self.test_session() as sess:
+      np_merged_boxes, np_merged_classes, np_merged_box_indices = sess.run(
+          [merged_boxes, merged_classes, merged_box_indices])
+      self.assertAllEqual(np_merged_boxes.shape, [0, 4])
+      self.assertAllEqual(np_merged_classes.shape, [0, 5])
+      self.assertAllEqual(np_merged_box_indices.shape, [0])
+
+
+class NearestNeighborUpsamplingTest(test_case.TestCase):
+
+  def test_upsampling(self):
+
+    def graph_fn(inputs):
+      custom_op_output = ops.nearest_neighbor_upsampling(inputs, scale=2)
+      return custom_op_output
+    inputs = np.reshape(np.arange(4).astype(np.float32), [1, 2, 2, 1])
+    custom_op_output = self.execute(graph_fn, [inputs])
+
+    expected_output = [[[[0], [0], [1], [1]],
+                        [[0], [0], [1], [1]],
+                        [[2], [2], [3], [3]],
+                        [[2], [2], [3], [3]]]]
+    self.assertAllClose(custom_op_output, expected_output)
+
+
+class MatmulGatherOnZerothAxis(test_case.TestCase):
+
+  def test_gather_2d(self):
+
+    def graph_fn(params, indices):
+      return ops.matmul_gather_on_zeroth_axis(params, indices)
+
+    params = np.array([[1, 2, 3, 4],
+                       [5, 6, 7, 8],
+                       [9, 10, 11, 12],
+                       [0, 1, 0, 0]], dtype=np.float32)
+    indices = np.array([2, 2, 1], dtype=np.int32)
+    expected_output = np.array([[9, 10, 11, 12], [9, 10, 11, 12], [5, 6, 7, 8]])
+    gather_output = self.execute(graph_fn, [params, indices])
+    self.assertAllClose(gather_output, expected_output)
+
+  def test_gather_3d(self):
+
+    def graph_fn(params, indices):
+      return ops.matmul_gather_on_zeroth_axis(params, indices)
+
+    params = np.array([[[1, 2], [3, 4]],
+                       [[5, 6], [7, 8]],
+                       [[9, 10], [11, 12]],
+                       [[0, 1], [0, 0]]], dtype=np.float32)
+    indices = np.array([0, 3, 1], dtype=np.int32)
+    expected_output = np.array([[[1, 2], [3, 4]],
+                                [[0, 1], [0, 0]],
+                                [[5, 6], [7, 8]]])
+    gather_output = self.execute(graph_fn, [params, indices])
+    self.assertAllClose(gather_output, expected_output)
+
+  def test_gather_with_many_indices(self):
+
+    def graph_fn(params, indices):
+      return ops.matmul_gather_on_zeroth_axis(params, indices)
+
+    params = np.array([[1, 2, 3, 4],
+                       [5, 6, 7, 8],
+                       [9, 10, 11, 12],
+                       [0, 1, 0, 0]], dtype=np.float32)
+    indices = np.array([0, 0, 0, 0, 0, 0], dtype=np.int32)
+    expected_output = np.array(6*[[1, 2, 3, 4]])
+    gather_output = self.execute(graph_fn, [params, indices])
+    self.assertAllClose(gather_output, expected_output)
+
+  def test_gather_with_dynamic_shape_input(self):
+    params_placeholder = tf.placeholder(tf.float32, shape=[None, 4])
+    indices_placeholder = tf.placeholder(tf.int32, shape=[None])
+    gather_result = ops.matmul_gather_on_zeroth_axis(
+        params_placeholder, indices_placeholder)
+    params = np.array([[1, 2, 3, 4],
+                       [5, 6, 7, 8],
+                       [9, 10, 11, 12],
+                       [0, 1, 0, 0]], dtype=np.float32)
+    indices = np.array([0, 0, 0, 0, 0, 0])
+    expected_output = np.array(6*[[1, 2, 3, 4]])
+    with self.test_session() as sess:
+      gather_output = sess.run(gather_result, feed_dict={
+          params_placeholder: params, indices_placeholder: indices})
+      self.assertAllClose(gather_output, expected_output)
+
+
+class OpsTestMatMulCropAndResize(test_case.TestCase):
+
+  def testMatMulCropAndResize2x2To1x1(self):
+
+    def graph_fn(image, boxes):
+      return ops.matmul_crop_and_resize(image, boxes, crop_size=[1, 1])
+
+    image = np.array([[[[1], [2]], [[3], [4]]]], dtype=np.float32)
+    boxes = np.array([[0, 0, 1, 1]], dtype=np.float32)
+    expected_output = [[[[2.5]]]]
+    crop_output = self.execute(graph_fn, [image, boxes])
+    self.assertAllClose(crop_output, expected_output)
+
+  def testMatMulCropAndResize2x2To1x1Flipped(self):
+
+    def graph_fn(image, boxes):
+      return ops.matmul_crop_and_resize(image, boxes, crop_size=[1, 1])
+
+    image = np.array([[[[1], [2]], [[3], [4]]]], dtype=np.float32)
+    boxes = np.array([[1, 1, 0, 0]], dtype=np.float32)
+    expected_output = [[[[2.5]]]]
+    crop_output = self.execute(graph_fn, [image, boxes])
+    self.assertAllClose(crop_output, expected_output)
+
+  def testMatMulCropAndResize2x2To3x3(self):
+
+    def graph_fn(image, boxes):
+      return ops.matmul_crop_and_resize(image, boxes, crop_size=[3, 3])
+
+    image = np.array([[[[1], [2]], [[3], [4]]]], dtype=np.float32)
+    boxes = np.array([[0, 0, 1, 1]], dtype=np.float32)
+    expected_output = [[[[1.0], [1.5], [2.0]],
+                        [[2.0], [2.5], [3.0]],
+                        [[3.0], [3.5], [4.0]]]]
+    crop_output = self.execute(graph_fn, [image, boxes])
+    self.assertAllClose(crop_output, expected_output)
+
+  def testMatMulCropAndResize2x2To3x3Flipped(self):
+
+    def graph_fn(image, boxes):
+      return ops.matmul_crop_and_resize(image, boxes, crop_size=[3, 3])
+
+    image = np.array([[[[1], [2]], [[3], [4]]]], dtype=np.float32)
+    boxes = np.array([[1, 1, 0, 0]], dtype=np.float32)
+    expected_output = [[[[4.0], [3.5], [3.0]],
+                        [[3.0], [2.5], [2.0]],
+                        [[2.0], [1.5], [1.0]]]]
+    crop_output = self.execute(graph_fn, [image, boxes])
+    self.assertAllClose(crop_output, expected_output)
+
+  def testMatMulCropAndResize3x3To2x2(self):
+
+    def graph_fn(image, boxes):
+      return ops.matmul_crop_and_resize(image, boxes, crop_size=[2, 2])
+
+    image = np.array([[[[1], [2], [3]],
+                       [[4], [5], [6]],
+                       [[7], [8], [9]]]], dtype=np.float32)
+    boxes = np.array([[0, 0, 1, 1],
+                      [0, 0, .5, .5]], dtype=np.float32)
+    expected_output = [[[[1], [3]], [[7], [9]]],
+                       [[[1], [2]], [[4], [5]]]]
+    crop_output = self.execute(graph_fn, [image, boxes])
+    self.assertAllClose(crop_output, expected_output)
+
+  def testMatMulCropAndResize3x3To2x2MultiChannel(self):
+
+    def graph_fn(image, boxes):
+      return ops.matmul_crop_and_resize(image, boxes, crop_size=[2, 2])
+
+    image = np.array([[[[1, 0], [2, 1], [3, 2]],
+                       [[4, 3], [5, 4], [6, 5]],
+                       [[7, 6], [8, 7], [9, 8]]]], dtype=np.float32)
+    boxes = np.array([[0, 0, 1, 1],
+                      [0, 0, .5, .5]], dtype=np.float32)
+    expected_output = [[[[1, 0], [3, 2]], [[7, 6], [9, 8]]],
+                       [[[1, 0], [2, 1]], [[4, 3], [5, 4]]]]
+    crop_output = self.execute(graph_fn, [image, boxes])
+    self.assertAllClose(crop_output, expected_output)
+
+  def testMatMulCropAndResize3x3To2x2Flipped(self):
+
+    def graph_fn(image, boxes):
+      return ops.matmul_crop_and_resize(image, boxes, crop_size=[2, 2])
+
+    image = np.array([[[[1], [2], [3]],
+                       [[4], [5], [6]],
+                       [[7], [8], [9]]]], dtype=np.float32)
+    boxes = np.array([[1, 1, 0, 0],
+                      [.5, .5, 0, 0]], dtype=np.float32)
+    expected_output = [[[[9], [7]], [[3], [1]]],
+                       [[[5], [4]], [[2], [1]]]]
+    crop_output = self.execute(graph_fn, [image, boxes])
+    self.assertAllClose(crop_output, expected_output)
+
+  def testInvalidInputShape(self):
+    image = tf.constant([[[1], [2]], [[3], [4]]], dtype=tf.float32)
+    boxes = tf.constant([[-1, -1, 1, 1]], dtype=tf.float32)
+    crop_size = [4, 4]
+    with self.assertRaises(ValueError):
+      _ = ops.matmul_crop_and_resize(image, boxes, crop_size)
 
 
 if __name__ == '__main__':

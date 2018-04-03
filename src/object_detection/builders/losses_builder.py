@@ -34,6 +34,9 @@ def build(loss_config):
     classification_weight: Classification loss weight.
     localization_weight: Localization loss weight.
     hard_example_miner: Hard example miner object.
+
+  Raises:
+    ValueError: If hard_example_miner is used with sigmoid_focal_loss.
   """
   classification_loss = _build_classification_loss(
       loss_config.classification_loss)
@@ -43,6 +46,10 @@ def build(loss_config):
   localization_weight = loss_config.localization_weight
   hard_example_miner = None
   if loss_config.HasField('hard_example_miner'):
+    if (loss_config.classification_loss.WhichOneof('classification_loss') ==
+        'weighted_sigmoid_focal'):
+      raise ValueError('HardExampleMiner should not be used with sigmoid focal '
+                       'loss')
     hard_example_miner = build_hard_example_miner(
         loss_config.hard_example_miner,
         classification_weight,
@@ -91,6 +98,37 @@ def build_hard_example_miner(config,
   return hard_example_miner
 
 
+def build_faster_rcnn_classification_loss(loss_config):
+  """Builds a classification loss for Faster RCNN based on the loss config.
+
+  Args:
+    loss_config: A losses_pb2.ClassificationLoss object.
+
+  Returns:
+    Loss based on the config.
+
+  Raises:
+    ValueError: On invalid loss_config.
+  """
+  if not isinstance(loss_config, losses_pb2.ClassificationLoss):
+    raise ValueError('loss_config not of type losses_pb2.ClassificationLoss.')
+
+  loss_type = loss_config.WhichOneof('classification_loss')
+
+  if loss_type == 'weighted_sigmoid':
+    return losses.WeightedSigmoidClassificationLoss()
+  if loss_type == 'weighted_softmax':
+    config = loss_config.weighted_softmax
+    return losses.WeightedSoftmaxClassificationLoss(
+        logit_scale=config.logit_scale)
+
+  # By default, Faster RCNN second stage classifier uses Softmax loss
+  # with anchor-wise outputs.
+  config = loss_config.weighted_softmax
+  return losses.WeightedSoftmaxClassificationLoss(
+      logit_scale=config.logit_scale)
+
+
 def _build_localization_loss(loss_config):
   """Builds a localization loss based on the loss config.
 
@@ -109,14 +147,11 @@ def _build_localization_loss(loss_config):
   loss_type = loss_config.WhichOneof('localization_loss')
 
   if loss_type == 'weighted_l2':
-    config = loss_config.weighted_l2
-    return losses.WeightedL2LocalizationLoss(
-        anchorwise_output=config.anchorwise_output)
+    return losses.WeightedL2LocalizationLoss()
 
   if loss_type == 'weighted_smooth_l1':
-    config = loss_config.weighted_smooth_l1
     return losses.WeightedSmoothL1LocalizationLoss(
-        anchorwise_output=config.anchorwise_output)
+        loss_config.weighted_smooth_l1.delta)
 
   if loss_type == 'weighted_iou':
     return losses.WeightedIOULocalizationLoss()
@@ -142,20 +177,26 @@ def _build_classification_loss(loss_config):
   loss_type = loss_config.WhichOneof('classification_loss')
 
   if loss_type == 'weighted_sigmoid':
-    config = loss_config.weighted_sigmoid
-    return losses.WeightedSigmoidClassificationLoss(
-        anchorwise_output=config.anchorwise_output)
+    return losses.WeightedSigmoidClassificationLoss()
+
+  if loss_type == 'weighted_sigmoid_focal':
+    config = loss_config.weighted_sigmoid_focal
+    alpha = None
+    if config.HasField('alpha'):
+      alpha = config.alpha
+    return losses.SigmoidFocalClassificationLoss(
+        gamma=config.gamma,
+        alpha=alpha)
 
   if loss_type == 'weighted_softmax':
     config = loss_config.weighted_softmax
     return losses.WeightedSoftmaxClassificationLoss(
-        anchorwise_output=config.anchorwise_output)
+        logit_scale=config.logit_scale)
 
   if loss_type == 'bootstrapped_sigmoid':
     config = loss_config.bootstrapped_sigmoid
     return losses.BootstrappedSigmoidClassificationLoss(
         alpha=config.alpha,
-        bootstrap_type=('hard' if config.hard_bootstrap else 'soft'),
-        anchorwise_output=config.anchorwise_output)
+        bootstrap_type=('hard' if config.hard_bootstrap else 'soft'))
 
   raise ValueError('Empty loss config.')

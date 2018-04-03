@@ -5,13 +5,14 @@ An extensive ROS toolbox for object detection and face recognition
 The codes are based on jupyter notebook inside of the object detection API.
 
 
-![alt text](https://github.com/cagbal/ros_people_object_detection_tensorflow/blob/master/images/people.gif?raw=true)
+![alt text](https://github.com/cagbal/ros_people_object_detection_tensorflow/blob/feature-gif/images/objects.gif?raw=true)
 
-![alt text](https://github.com/cagbal/ros_people_object_detection_tensorflow/blob/master/images/objects.gif?raw=true)
+![alt text](https://github.com/cagbal/ros_people_object_detection_tensorflow/blob/feature-gif/images/people.gif?raw=true)
+
+![alt text](https://github.com/cagbal/ros_people_object_detection_tensorflow/blob/feature-gif/images/mask_rcnn_masked.png?raw=true)
 
 
-
-NOTE: Now, the code also recognizes the faces that in the scene by using amazing [face_recognition](https://github.com/ageitgey/face_recognition) library. Also, The code can now track the detections by using Sort tracker(Kalman based) thanks to [this repo](https://github.com/ZidanMusk/experimenting-with-sort). For licences, please check the licences of these repos as well. 
+NOTE: Now, the code also recognizes the faces that in the scene by using amazing [face_recognition](https://github.com/ageitgey/face_recognition) library. Also, The code can now track the detections by using Sort tracker(Kalman based) thanks to [this repo](https://github.com/ZidanMusk/experimenting-with-sort). For licences, please check the licences of these repos as well.
 
 
 
@@ -24,6 +25,8 @@ NOTE: Now, the code also recognizes the faces that in the scene by using amazing
   - Publishes the results as DetectionArray msg (same message format with Detection)
   - Parameters can be set fom a Yaml file
   - Detects the faces inside the person area
+  - TODO: you can currently use MASK RCNN, but it just publishes the mask drawn on the image, I am trying to publish the mask as a ROS message.
+  - TODO: I am no happy with tracking. There are some issues.
 
 ### Tech
 
@@ -55,8 +58,14 @@ $ protoc object_detection/protos/*.proto --python_out=.
 $ cd ~/catkin_ws
 $ rosdep install --from-path src/ -y -i
 $ catkin_make
-$ pip install face_recognition 
+$ pip install face_recognition
 ```
+
+Then, install a model from [Model Zoo](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/detection_model_zoo.md)  of tensorflow object detection.
+
+and put those models into src/object_detection/, lastly set the model_name parameter of [launch/cob_people_object_detection_tensoflow_params.yaml](https://github.com/cagbal/ros_people_object_detection_tensorflow/blob/master/launch/cob_people_object_detection_tensorflow_params.yaml)
+
+I could not include models because of their sizes.
 
 ### Running
 
@@ -75,8 +84,6 @@ $ roslaunch cob_people_object_detection_tensorflow cob_people_object_tracker.lau
 ```
 
 If you also want to run the face_recognition,
-
-Just put one picture for each individual inside people folder, then the program will read those images and create a database. The name of the file will be the name of individual. For example, my image is "cagatay.png". If program sees me, it says I am "cagatay". There are some images of mine and two others collected from internet in the people folder.
 
 ```sh
 $ roslaunch cob_people_object_detection_tensorflow cob_face_recognizer.launch
@@ -122,3 +129,10 @@ License
 
 Apache (but please also look at tensorflow, tf object detection, face_recognition and dlib licences)
 
+
+Acknowledgement
+---
+My works are supported by SOCRATES which is an MSCA-ITN-2016 – Innovative Training Networks funded by EC under grant
+agreement No 721619.
+
+You can find a lot of information regarding SOCRATES [here](http://www.socrates-project.eu/).

@@ -15,6 +15,7 @@
 
 """A module for helper tensorflow ops."""
 import math
+import numpy as np
 import six
 
 import tensorflow as tf
@@ -22,6 +23,7 @@ import tensorflow as tf
 from object_detection.core import box_list
 from object_detection.core import box_list_ops
 from object_detection.core import standard_fields as fields
+from object_detection.utils import shape_utils
 from object_detection.utils import static_shape
 
 
@@ -66,7 +68,7 @@ def normalized_to_image_coordinates(normalized_boxes, image_shape,
         box_list.BoxList(normalized_boxes),
         image_shape[1], image_shape[2], check_range=False).get()
 
-  absolute_boxes = tf.map_fn(
+  absolute_boxes = shape_utils.static_or_dynamic_map_fn(
       _to_absolute_coordinates,
       elems=(normalized_boxes),
       dtype=tf.float32,
@@ -114,6 +116,28 @@ def meshgrid(x, y):
     return xgrid, ygrid
 
 
+def fixed_padding(inputs, kernel_size, rate=1):
+  """Pads the input along the spatial dimensions independently of input size.
+
+  Args:
+    inputs: A tensor of size [batch, height_in, width_in, channels].
+    kernel_size: The kernel to be used in the conv2d or max_pool2d operation.
+                 Should be a positive integer.
+    rate: An integer, rate for atrous convolution.
+
+  Returns:
+    output: A tensor of size [batch, height_out, width_out, channels] with the
+      input, either intact (if kernel_size == 1) or padded (if kernel_size > 1).
+  """
+  kernel_size_effective = kernel_size + (kernel_size - 1) * (rate - 1)
+  pad_total = kernel_size_effective - 1
+  pad_beg = pad_total // 2
+  pad_end = pad_total - pad_beg
+  padded_inputs = tf.pad(inputs, [[0, 0], [pad_beg, pad_end],
+                                  [pad_beg, pad_end], [0, 0]])
+  return padded_inputs
+
+
 def pad_to_multiple(tensor, multiple):
   """Returns the tensor zero padded to the specified multiple.
 
@@ -156,6 +180,10 @@ def pad_to_multiple(tensor, multiple):
     padded_tensor_width = int(
         math.ceil(float(tensor_width) / multiple) * multiple)
 
+  if (padded_tensor_height == tensor_height and
+      padded_tensor_width == tensor_width):
+    return tensor
+
   if tensor_depth is None:
     tensor_depth = tf.shape(tensor)[3]
 
@@ -196,16 +224,18 @@ def padded_one_hot_encoding(indices, depth, left_pad):
     ValueError: if `indices` does not have rank 1 or if `left_pad` or `depth are
       either negative or non-integers.
 
-  TODO: add runtime checks for depth and indices.
+  TODO(rathodv): add runtime checks for depth and indices.
   """
-  if depth < 0 or not isinstance(depth, (int, long) if six.PY2 else int):
+  if depth < 0 or not isinstance(depth, six.integer_types):
     raise ValueError('`depth` must be a non-negative integer.')
-  if left_pad < 0 or not isinstance(left_pad, (int, long) if six.PY2 else int):
+  if left_pad < 0 or not isinstance(left_pad, six.integer_types):
     raise ValueError('`left_pad` must be a non-negative integer.')
   if depth == 0:
     return None
-  if len(indices.get_shape().as_list()) != 1:
-    raise ValueError('`indices` must have rank 1')
+
+  rank = len(indices.get_shape().as_list())
+  if rank != 1:
+    raise ValueError('`indices` must have rank 1, but has rank=%s' % rank)
 
   def one_hot_and_pad():
     one_hot = tf.cast(tf.one_hot(tf.cast(indices, tf.int64), depth,
@@ -279,12 +309,18 @@ def indices_to_dense_vector(indices,
                            [zeros, values])
 
 
+def reduce_sum_trailing_dimensions(tensor, ndims):
+  """Computes sum across all dimensions following first `ndims` dimensions."""
+  return tf.reduce_sum(tensor, axis=tuple(range(ndims, tensor.shape.ndims)))
+
+
 def retain_groundtruth(tensor_dict, valid_indices):
   """Retains groundtruth by valid indices.
 
   Args:
     tensor_dict: a dictionary of following groundtruth tensors -
       fields.InputDataFields.groundtruth_boxes
+      fields.InputDataFields.groundtruth_instance_masks
       fields.InputDataFields.groundtruth_classes
       fields.InputDataFields.groundtruth_is_crowd
       fields.InputDataFields.groundtruth_area
@@ -312,7 +348,8 @@ def retain_groundtruth(tensor_dict, valid_indices):
         tensor_dict[fields.InputDataFields.groundtruth_boxes])[0], 1)
     for key in tensor_dict:
       if key in [fields.InputDataFields.groundtruth_boxes,
-                 fields.InputDataFields.groundtruth_classes]:
+                 fields.InputDataFields.groundtruth_classes,
+                 fields.InputDataFields.groundtruth_instance_masks]:
         valid_dict[key] = tf.gather(tensor_dict[key], valid_indices)
       # Input decoder returns empty tensor when these fields are not provided.
       # Needs to reshape into [num_boxes, -1] for tf.gather() to work.
@@ -358,12 +395,49 @@ def retain_groundtruth_with_positive_classes(tensor_dict):
   return retain_groundtruth(tensor_dict, keep_indices)
 
 
+def replace_nan_groundtruth_label_scores_with_ones(label_scores):
+  """Replaces nan label scores with 1.0.
+
+  Args:
+    label_scores: a tensor containing object annoation label scores.
+
+  Returns:
+    a tensor where NaN label scores have been replaced by ones.
+  """
+  return tf.where(
+      tf.is_nan(label_scores), tf.ones(tf.shape(label_scores)), label_scores)
+
+
+def filter_groundtruth_with_crowd_boxes(tensor_dict):
+  """Filters out groundtruth with boxes corresponding to crowd.
+
+  Args:
+    tensor_dict: a dictionary of following groundtruth tensors -
+      fields.InputDataFields.groundtruth_boxes
+      fields.InputDataFields.groundtruth_classes
+      fields.InputDataFields.groundtruth_is_crowd
+      fields.InputDataFields.groundtruth_area
+      fields.InputDataFields.groundtruth_label_types
+
+  Returns:
+    a dictionary of tensors containing only the groundtruth that have bounding
+    boxes.
+  """
+  if fields.InputDataFields.groundtruth_is_crowd in tensor_dict:
+    is_crowd = tensor_dict[fields.InputDataFields.groundtruth_is_crowd]
+    is_not_crowd = tf.logical_not(is_crowd)
+    is_not_crowd_indices = tf.where(is_not_crowd)
+    tensor_dict = retain_groundtruth(tensor_dict, is_not_crowd_indices)
+  return tensor_dict
+
+
 def filter_groundtruth_with_nan_box_coordinates(tensor_dict):
   """Filters out groundtruth with no bounding boxes.
 
   Args:
     tensor_dict: a dictionary of following groundtruth tensors -
       fields.InputDataFields.groundtruth_boxes
+      fields.InputDataFields.groundtruth_instance_masks
       fields.InputDataFields.groundtruth_classes
       fields.InputDataFields.groundtruth_is_crowd
       fields.InputDataFields.groundtruth_area
@@ -400,7 +474,7 @@ def normalize_to_target(inputs,
   Note that the rank of `inputs` must be known and the dimension to which
   normalization is to be applied should be statically defined.
 
-  TODO: Add option to scale by L2 norm of the entire input.
+  TODO(jonathanhuang): Add option to scale by L2 norm of the entire input.
 
   Args:
     inputs: A `Tensor` of arbitrary size.
@@ -630,7 +704,7 @@ def reframe_box_masks_to_image_masks(box_masks, boxes, image_height,
   Returns:
     A tf.float32 tensor of size [num_masks, image_height, image_width].
   """
-  # TODO: Make this a public function.
+  # TODO(rathodv): Make this a public function.
   def transform_boxes_relative_to_boxes(boxes, reference_boxes):
     boxes = tf.reshape(boxes, [-1, 2, 2])
     min_corner = tf.expand_dims(reference_boxes[:, 0:2], 1)
@@ -649,3 +723,224 @@ def reframe_box_masks_to_image_masks(box_masks, boxes, image_height,
                                          crop_size=[image_height, image_width],
                                          extrapolation_value=0.0)
   return tf.squeeze(image_masks, axis=3)
+
+
+def merge_boxes_with_multiple_labels(boxes, classes, num_classes):
+  """Merges boxes with same coordinates and returns K-hot encoded classes.
+
+  Args:
+    boxes: A tf.float32 tensor with shape [N, 4] holding N boxes.
+    classes: A tf.int32 tensor with shape [N] holding class indices.
+      The class index starts at 0.
+    num_classes: total number of classes to use for K-hot encoding.
+
+  Returns:
+    merged_boxes: A tf.float32 tensor with shape [N', 4] holding boxes,
+      where N' <= N.
+    class_encodings: A tf.int32 tensor with shape [N', num_classes] holding
+      k-hot encodings for the merged boxes.
+    merged_box_indices: A tf.int32 tensor with shape [N'] holding original
+      indices of the boxes.
+  """
+  def merge_numpy_boxes(boxes, classes, num_classes):
+    """Python function to merge numpy boxes."""
+    if boxes.size < 1:
+      return (np.zeros([0, 4], dtype=np.float32),
+              np.zeros([0, num_classes], dtype=np.int32),
+              np.zeros([0], dtype=np.int32))
+    box_to_class_indices = {}
+    for box_index in range(boxes.shape[0]):
+      box = tuple(boxes[box_index, :].tolist())
+      class_index = classes[box_index]
+      if box not in box_to_class_indices:
+        box_to_class_indices[box] = [box_index, np.zeros([num_classes])]
+      box_to_class_indices[box][1][class_index] = 1
+    merged_boxes = np.vstack(box_to_class_indices.keys()).astype(np.float32)
+    class_encodings = [item[1] for item in box_to_class_indices.values()]
+    class_encodings = np.vstack(class_encodings).astype(np.int32)
+    merged_box_indices = [item[0] for item in box_to_class_indices.values()]
+    merged_box_indices = np.array(merged_box_indices).astype(np.int32)
+    return merged_boxes, class_encodings, merged_box_indices
+
+  merged_boxes, class_encodings, merged_box_indices = tf.py_func(
+      merge_numpy_boxes, [boxes, classes, num_classes],
+      [tf.float32, tf.int32, tf.int32])
+  merged_boxes = tf.reshape(merged_boxes, [-1, 4])
+  class_encodings = tf.reshape(class_encodings, [-1, num_classes])
+  merged_box_indices = tf.reshape(merged_box_indices, [-1])
+  return merged_boxes, class_encodings, merged_box_indices
+
+
+def nearest_neighbor_upsampling(input_tensor, scale):
+  """Nearest neighbor upsampling implementation.
+
+  Nearest neighbor upsampling function that maps input tensor with shape
+  [batch_size, height, width, channels] to [batch_size, height * scale
+  , width * scale, channels]. This implementation only uses reshape and tile to
+  make it compatible with certain hardware.
+
+  Args:
+    input_tensor: A float32 tensor of size [batch, height_in, width_in,
+      channels].
+    scale: An integer multiple to scale resolution of input data.
+  Returns:
+    data_up: A float32 tensor of size
+      [batch, height_in*scale, width_in*scale, channels].
+  """
+  shape = shape_utils.combined_static_and_dynamic_shape(input_tensor)
+  shape_before_tile = [shape[0], shape[1], 1, shape[2], 1, shape[3]]
+  shape_after_tile = [shape[0], shape[1] * scale, shape[2] * scale, shape[3]]
+  data_reshaped = tf.reshape(input_tensor, shape_before_tile)
+  resized_tensor = tf.tile(data_reshaped, [1, 1, scale, 1, scale, 1])
+  resized_tensor = tf.reshape(resized_tensor, shape_after_tile)
+  return resized_tensor
+
+
+def matmul_gather_on_zeroth_axis(params, indices, scope=None):
+  """Matrix multiplication based implementation of tf.gather on zeroth axis.
+
+  TODO(rathodv, jonathanhuang): enable sparse matmul option.
+
+  Args:
+    params: A float32 Tensor. The tensor from which to gather values.
+      Must be at least rank 1.
+    indices: A Tensor. Must be one of the following types: int32, int64.
+      Must be in range [0, params.shape[0])
+    scope: A name for the operation (optional).
+
+  Returns:
+    A Tensor. Has the same type as params. Values from params gathered
+    from indices given by indices, with shape indices.shape + params.shape[1:].
+  """
+  with tf.name_scope(scope, 'MatMulGather'):
+    params_shape = shape_utils.combined_static_and_dynamic_shape(params)
+    indices_shape = shape_utils.combined_static_and_dynamic_shape(indices)
+    params2d = tf.reshape(params, [params_shape[0], -1])
+    indicator_matrix = tf.one_hot(indices, params_shape[0])
+    gathered_result_flattened = tf.matmul(indicator_matrix, params2d)
+    return tf.reshape(gathered_result_flattened,
+                      tf.stack(indices_shape + params_shape[1:]))
+
+
+def matmul_crop_and_resize(image, boxes, crop_size, scope=None):
+  """Matrix multiplication based implementation of the crop and resize op.
+
+  Extracts crops from the input image tensor and bilinearly resizes them
+  (possibly with aspect ratio change) to a common output size specified by
+  crop_size. This is more general than the crop_to_bounding_box op which
+  extracts a fixed size slice from the input image and does not allow
+  resizing or aspect ratio change.
+
+  Returns a tensor with crops from the input image at positions defined at
+  the bounding box locations in boxes. The cropped boxes are all resized
+  (with bilinear interpolation) to a fixed size = `[crop_height, crop_width]`.
+  The result is a 4-D tensor `[num_boxes, crop_height, crop_width, depth]`.
+
+  Running time complexity:
+    O((# channels) * (# boxes) * (crop_size)^2 * M), where M is the number
+  of pixels of the longer edge of the image.
+
+  Note that this operation is meant to replicate the behavior of the standard
+  tf.image.crop_and_resize operation but there are a few differences.
+  Specifically:
+    1) The extrapolation value (the values that are interpolated from outside
+      the bounds of the image window) is always zero
+    2) Only XLA supported operations are used (e.g., matrix multiplication).
+    3) There is no `box_indices` argument --- to run this op on multiple images,
+      one must currently call this op independently on each image.
+    4) All shapes and the `crop_size` parameter are assumed to be statically
+      defined.  Moreover, the number of boxes must be strictly nonzero.
+
+  Args:
+    image: A `Tensor`. Must be one of the following types: `uint8`, `int8`,
+      `int16`, `int32`, `int64`, `half`, `float32`, `float64`.
+      A 4-D tensor of shape `[batch, image_height, image_width, depth]`.
+      Both `image_height` and `image_width` need to be positive.
+    boxes: A `Tensor` of type `float32`.
+      A 2-D tensor of shape `[num_boxes, 4]`. The `i`-th row of the tensor
+      specifies the coordinates of a box in the `box_ind[i]` image and is
+      specified in normalized coordinates `[y1, x1, y2, x2]`. A normalized
+      coordinate value of `y` is mapped to the image coordinate at
+      `y * (image_height - 1)`, so as the `[0, 1]` interval of normalized image
+      height is mapped to `[0, image_height - 1] in image height coordinates.
+      We do allow y1 > y2, in which case the sampled crop is an up-down flipped
+      version of the original image. The width dimension is treated similarly.
+      Normalized coordinates outside the `[0, 1]` range are allowed, in which
+      case we use `extrapolation_value` to extrapolate the input image values.
+    crop_size: A list of two integers `[crop_height, crop_width]`. All
+      cropped image patches are resized to this size. The aspect ratio of the
+      image content is not preserved. Both `crop_height` and `crop_width` need
+      to be positive.
+    scope: A name for the operation (optional).
+
+  Returns:
+    A 4-D tensor of shape `[num_boxes, crop_height, crop_width, depth]`
+
+  Raises:
+    ValueError: if image tensor does not have shape
+      `[1, image_height, image_width, depth]` and all dimensions statically
+      defined.
+    ValueError: if boxes tensor does not have shape `[num_boxes, 4]` where
+      num_boxes > 0.
+    ValueError: if crop_size is not a list of two positive integers
+  """
+  img_shape = image.shape.as_list()
+  boxes_shape = boxes.shape.as_list()
+  _, img_height, img_width, _ = img_shape
+  if not isinstance(crop_size, list) or len(crop_size) != 2:
+    raise ValueError('`crop_size` must be a list of length 2')
+  dimensions = img_shape + crop_size + boxes_shape
+  if not all([isinstance(dim, int) for dim in dimensions]):
+    raise ValueError('all input shapes must be statically defined')
+  if len(crop_size) != 2:
+    raise ValueError('`crop_size` must be a list of length 2')
+  if len(boxes_shape) != 2 or boxes_shape[1] != 4:
+    raise ValueError('`boxes` should have shape `[num_boxes, 4]`')
+  if len(img_shape) != 4 and img_shape[0] != 1:
+    raise ValueError('image should have shape '
+                     '`[1, image_height, image_width, depth]`')
+  num_crops = boxes_shape[0]
+  if not num_crops > 0:
+    raise ValueError('number of boxes must be > 0')
+  if not (crop_size[0] > 0 and crop_size[1] > 0):
+    raise ValueError('`crop_size` must be a list of two positive integers.')
+
+  def _lin_space_weights(num, img_size):
+    if num > 1:
+      alpha = (img_size - 1) / float(num - 1)
+      indices = np.reshape(np.arange(num), (1, num))
+      start_weights = alpha * (num - 1 - indices)
+      stop_weights = alpha * indices
+    else:
+      start_weights = num * [.5 * (img_size - 1)]
+      stop_weights = num * [.5 * (img_size - 1)]
+    return (tf.constant(start_weights, dtype=tf.float32),
+            tf.constant(stop_weights, dtype=tf.float32))
+
+  with tf.name_scope(scope, 'MatMulCropAndResize'):
+    y1_weights, y2_weights = _lin_space_weights(crop_size[0], img_height)
+    x1_weights, x2_weights = _lin_space_weights(crop_size[1], img_width)
+    [y1, x1, y2, x2] = tf.split(value=boxes, num_or_size_splits=4, axis=1)
+
+    # Pixel centers of input image and grid points along height and width
+    image_idx_h = tf.constant(
+        np.reshape(np.arange(img_height), (1, 1, img_height)), dtype=tf.float32)
+    image_idx_w = tf.constant(
+        np.reshape(np.arange(img_width), (1, 1, img_width)), dtype=tf.float32)
+    grid_pos_h = tf.expand_dims(y1 * y1_weights + y2 * y2_weights, 2)
+    grid_pos_w = tf.expand_dims(x1 * x1_weights + x2 * x2_weights, 2)
+
+    # Create kernel matrices of pairwise kernel evaluations between pixel
+    # centers of image and grid points.
+    kernel_h = tf.nn.relu(1 - tf.abs(image_idx_h - grid_pos_h))
+    kernel_w = tf.nn.relu(1 - tf.abs(image_idx_w - grid_pos_w))
+
+    # TODO(jonathanhuang): investigate whether all channels can be processed
+    # without the explicit unstack --- possibly with a permute and map_fn call.
+    result_channels = []
+    for channel in tf.unstack(image, axis=3):
+      result_channels.append(
+          tf.matmul(
+              tf.matmul(kernel_h, tf.tile(channel, [num_crops, 1, 1])),
+              kernel_w, transpose_b=True))
+    return tf.stack(result_channels, axis=3)

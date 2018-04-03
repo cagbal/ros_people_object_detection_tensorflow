@@ -26,6 +26,7 @@ class FasterRcnnInceptionResnetV2FeatureExtractorTest(tf.test.TestCase):
     return frcnn_inc_res.FasterRCNNInceptionResnetV2FeatureExtractor(
         is_training=False,
         first_stage_features_stride=first_stage_features_stride,
+        batch_norm_trainable=False,
         reuse_weights=None,
         weight_decay=0.0)
 
@@ -34,7 +35,7 @@ class FasterRcnnInceptionResnetV2FeatureExtractorTest(tf.test.TestCase):
         first_stage_features_stride=16)
     preprocessed_inputs = tf.random_uniform(
         [1, 299, 299, 3], maxval=255, dtype=tf.float32)
-    rpn_feature_map = feature_extractor.extract_proposal_features(
+    rpn_feature_map, _ = feature_extractor.extract_proposal_features(
         preprocessed_inputs, scope='TestScope')
     features_shape = tf.shape(rpn_feature_map)
 
@@ -49,7 +50,7 @@ class FasterRcnnInceptionResnetV2FeatureExtractorTest(tf.test.TestCase):
         first_stage_features_stride=8)
     preprocessed_inputs = tf.random_uniform(
         [1, 224, 224, 3], maxval=255, dtype=tf.float32)
-    rpn_feature_map = feature_extractor.extract_proposal_features(
+    rpn_feature_map, _ = feature_extractor.extract_proposal_features(
         preprocessed_inputs, scope='TestScope')
     features_shape = tf.shape(rpn_feature_map)
 
@@ -64,7 +65,7 @@ class FasterRcnnInceptionResnetV2FeatureExtractorTest(tf.test.TestCase):
         first_stage_features_stride=16)
     preprocessed_inputs = tf.random_uniform(
         [1, 112, 112, 3], maxval=255, dtype=tf.float32)
-    rpn_feature_map = feature_extractor.extract_proposal_features(
+    rpn_feature_map, _ = feature_extractor.extract_proposal_features(
         preprocessed_inputs, scope='TestScope')
     features_shape = tf.shape(rpn_feature_map)
 

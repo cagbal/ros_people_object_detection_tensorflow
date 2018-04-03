@@ -13,21 +13,21 @@ To download, extract and convert it to TFRecords, run the following commands
 below:
 
 ```bash
-# From tensorflow/models
+# From tensorflow/models/research/
 wget http://host.robots.ox.ac.uk/pascal/VOC/voc2012/VOCtrainval_11-May-2012.tar
 tar -xvf VOCtrainval_11-May-2012.tar
-python object_detection/create_pascal_tf_record.py \
+python object_detection/dataset_tools/create_pascal_tf_record.py \
     --label_map_path=object_detection/data/pascal_label_map.pbtxt \
     --data_dir=VOCdevkit --year=VOC2012 --set=train \
     --output_path=pascal_train.record
-python object_detection/create_pascal_tf_record.py \
+python object_detection/dataset_tools/create_pascal_tf_record.py \
     --label_map_path=object_detection/data/pascal_label_map.pbtxt \
     --data_dir=VOCdevkit --year=VOC2012 --set=val \
     --output_path=pascal_val.record
 ```
 
 You should end up with two TFRecord files named `pascal_train.record` and
-`pascal_val.record` in the `tensorflow/models` directory.
+`pascal_val.record` in the `tensorflow/models/research/` directory.
 
 The label map for the PASCAL VOC data set can be found at
 `object_detection/data/pascal_label_map.pbtxt`.
@@ -39,19 +39,19 @@ The Oxford-IIIT Pet data set is located
 convert it to TFRecrods, run the following commands below:
 
 ```bash
-# From tensorflow/models
+# From tensorflow/models/research/
 wget http://www.robots.ox.ac.uk/~vgg/data/pets/data/images.tar.gz
 wget http://www.robots.ox.ac.uk/~vgg/data/pets/data/annotations.tar.gz
 tar -xvf annotations.tar.gz
 tar -xvf images.tar.gz
-python object_detection/create_pet_tf_record.py \
+python object_detection/dataset_tools/create_pet_tf_record.py \
     --label_map_path=object_detection/data/pet_label_map.pbtxt \
     --data_dir=`pwd` \
     --output_dir=`pwd`
 ```
 
 You should end up with two TFRecord files named `pet_train.record` and
-`pet_val.record` in the `tensorflow/models` directory.
+`pet_val.record` in the `tensorflow/models/research/` directory.
 
 The label map for the Pet dataset can be found at
 `object_detection/data/pet_label_map.pbtxt`.

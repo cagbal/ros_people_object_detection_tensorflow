@@ -33,8 +33,14 @@ INCEPTION_V3_LAYOUT = {
     'aspect_ratios': [1.0, 2.0, 1.0/2, 3.0, 1.0/3]
 }
 
+EMBEDDED_SSD_MOBILENET_V1_LAYOUT = {
+    'from_layer': ['Conv2d_11_pointwise', 'Conv2d_13_pointwise', '', '', ''],
+    'layer_depth': [-1, -1, 512, 256, 256],
+    'conv_kernel_size': [-1, -1, 3, 3, 2],
+}
 
-# TODO: add tests with different anchor strides.
+
+# TODO(rathodv): add tests with different anchor strides.
 class MultiResolutionFeatureMapGeneratorTest(tf.test.TestCase):
 
   def test_get_expected_feature_map_shapes_with_inception_v2(self):
@@ -94,6 +100,65 @@ class MultiResolutionFeatureMapGeneratorTest(tf.test.TestCase):
       out_feature_maps = sess.run(feature_maps)
       out_feature_map_shapes = dict(
           (key, value.shape) for key, value in out_feature_maps.items())
+      self.assertDictEqual(out_feature_map_shapes, expected_feature_map_shapes)
+
+  def test_get_expected_feature_map_shapes_with_embedded_ssd_mobilenet_v1(
+      self):
+    image_features = {
+        'Conv2d_11_pointwise': tf.random_uniform([4, 16, 16, 512],
+                                                 dtype=tf.float32),
+        'Conv2d_13_pointwise': tf.random_uniform([4, 8, 8, 1024],
+                                                 dtype=tf.float32),
+    }
+
+    feature_maps = feature_map_generators.multi_resolution_feature_maps(
+        feature_map_layout=EMBEDDED_SSD_MOBILENET_V1_LAYOUT,
+        depth_multiplier=1,
+        min_depth=32,
+        insert_1x1_conv=True,
+        image_features=image_features)
+
+    expected_feature_map_shapes = {
+        'Conv2d_11_pointwise': (4, 16, 16, 512),
+        'Conv2d_13_pointwise': (4, 8, 8, 1024),
+        'Conv2d_13_pointwise_2_Conv2d_2_3x3_s2_512': (4, 4, 4, 512),
+        'Conv2d_13_pointwise_2_Conv2d_3_3x3_s2_256': (4, 2, 2, 256),
+        'Conv2d_13_pointwise_2_Conv2d_4_2x2_s2_256': (4, 1, 1, 256)}
+
+    init_op = tf.global_variables_initializer()
+    with self.test_session() as sess:
+      sess.run(init_op)
+      out_feature_maps = sess.run(feature_maps)
+      out_feature_map_shapes = dict(
+          (key, value.shape) for key, value in out_feature_maps.items())
+      self.assertDictEqual(out_feature_map_shapes, expected_feature_map_shapes)
+
+
+class FPNFeatureMapGeneratorTest(tf.test.TestCase):
+
+  def test_get_expected_feature_map_shapes(self):
+    image_features = [
+        tf.random_uniform([4, 8, 8, 256], dtype=tf.float32),
+        tf.random_uniform([4, 4, 4, 256], dtype=tf.float32),
+        tf.random_uniform([4, 2, 2, 256], dtype=tf.float32),
+        tf.random_uniform([4, 1, 1, 256], dtype=tf.float32),
+    ]
+    feature_maps = feature_map_generators.fpn_top_down_feature_maps(
+        image_features=image_features, depth=128)
+
+    expected_feature_map_shapes = {
+        'top_down_feature_map_0': (4, 8, 8, 128),
+        'top_down_feature_map_1': (4, 4, 4, 128),
+        'top_down_feature_map_2': (4, 2, 2, 128),
+        'top_down_feature_map_3': (4, 1, 1, 128)
+    }
+
+    init_op = tf.global_variables_initializer()
+    with self.test_session() as sess:
+      sess.run(init_op)
+      out_feature_maps = sess.run(feature_maps)
+      out_feature_map_shapes = {key: value.shape
+                                for key, value in out_feature_maps.items()}
       self.assertDictEqual(out_feature_map_shapes, expected_feature_map_shapes)
 
 

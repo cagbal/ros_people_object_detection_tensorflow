@@ -134,6 +134,10 @@ def _build_initializer(initializer):
     return tf.truncated_normal_initializer(
         mean=initializer.truncated_normal_initializer.mean,
         stddev=initializer.truncated_normal_initializer.stddev)
+  if initializer_oneof == 'random_normal_initializer':
+    return tf.random_normal_initializer(
+        mean=initializer.random_normal_initializer.mean,
+        stddev=initializer.random_normal_initializer.stddev)
   if initializer_oneof == 'variance_scaling_initializer':
     enum_descriptor = (hyperparams_pb2.VarianceScalingInitializer.
                        DESCRIPTOR.enum_types_by_name['Mode'])
@@ -163,7 +167,6 @@ def _build_batch_norm_params(batch_norm, is_training):
       'center': batch_norm.center,
       'scale': batch_norm.scale,
       'epsilon': batch_norm.epsilon,
-      'fused': True,
       'is_training': is_training and batch_norm.train,
   }
   return batch_norm_params

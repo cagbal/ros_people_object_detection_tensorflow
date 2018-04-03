@@ -46,13 +46,17 @@ class FaceRecognitionNode(object):
         rospy.init_node('face_recognition_node', anonymous=False)
 
         # Get the parameters
-        (image_topic, detection_topic, output_topic) = self.get_parameters()
+        (image_topic, detection_topic, output_topic, output_topic_rgb) = self.get_parameters()
 
         self._bridge = CvBridge()
 
         # Advertise the result of Object Tracker
         self.pub_det = rospy.Publisher(output_topic, \
             DetectionArray, queue_size=1)
+
+        self.pub_det_rgb = rospy.Publisher(output_topic_rgb, \
+            Image, queue_size=1)
+
 
         self.sub_detection = message_filters.Subscriber(detection_topic, \
             DetectionArray)
@@ -65,7 +69,7 @@ class FaceRecognitionNode(object):
         self.database = self.initialize_database()
 
         ts = message_filters.ApproximateTimeSynchronizer(\
-            [self.sub_detection, self.sub_image], 2, 0.1)
+            [self.sub_detection, self.sub_image], 2, 0.2)
 
         ts.registerCallback(self.detection_callback)
 
@@ -86,8 +90,9 @@ class FaceRecognitionNode(object):
         camera_topic = rospy.get_param("~camera_topic")
         detection_topic = rospy.get_param("~detection_topic")
         output_topic = rospy.get_param("~output_topic")
+        output_topic_rgb = rospy.get_param("~output_topic_rgb")
 
-        return (camera_topic, detection_topic, output_topic)
+        return (camera_topic, detection_topic, output_topic, output_topic_rgb)
 
 
     def shutdown(self):
@@ -115,11 +120,10 @@ class FaceRecognitionNode(object):
 
         (cv_rgb, detections) = self.recognize(detections, cv_rgb)
 
-        cv2.imshow("", cv_rgb)
+        image_outgoing = self._bridge.cv2_to_imgmsg(cv_rgb, encoding="passthrough")
 
-        cv2.waitKey(1)
+        self.publish(detections, image_outgoing)
 
-        self.publish(detections)
 
     def recognize(self, detections, image):
         """
@@ -169,47 +173,49 @@ class FaceRecognitionNode(object):
                         r = y + right
                         b = x + bottom
 
+                        detection.label = "Unknown"
+
                         if True in matches:
                             ind = matches.index(True)
-
-                            # Modify the message
-                            detection.mask.roi.x  = t/self.scaling_factor
-                            detection.mask.roi.y = l/self.scaling_factor
-                            detection.mask.roi.width = (t -b)/self.scaling_factor
-                            detection.mask.roi.height = (r - l)/self.scaling_factor
-
                             detection.label = self.database[1][ind]
 
-                            # Draw bounding boxes on current image
+                        # Modify the message
+                        detection.mask.roi.x  = t/self.scaling_factor
+                        detection.mask.roi.y = l/self.scaling_factor
+                        detection.mask.roi.width = (t -b)/self.scaling_factor
+                        detection.mask.roi.height = (r - l)/self.scaling_factor
 
-                            cv2.rectangle(image, (l, t), \
-                            (r, b), (0, 0, 255), 2)
+                        # Draw bounding boxes on current image
 
-                            cv2.rectangle(image, (x, y), \
-                            (x + width, y + height), (255, 0, 0), 3)
+                        cv2.rectangle(image, (l, t), \
+                        (r, b), (0, 0, 255), 2)
 
-                            cv2.putText(image, self.database[1][ind], \
-                            (l + 2, t + 2), \
-                            cv2.FONT_HERSHEY_DUPLEX, 1.0, (0, 0, 0), 1)
+                        cv2.rectangle(image, (x, y), \
+                        (x + width, y + height), (255, 0, 0), 3)
+
+                        cv2.putText(image, detection.label, \
+                        (l + 2, t + 2), \
+                        cv2.FONT_HERSHEY_DUPLEX, 1.0, (0, 0, 0), 1)
 
                 except Exception as e:
                     print e
 
         return (image, detections)
 
-    def publish(self, detections):
+    def publish(self, detections, image_outgoing):
         """
         Creates the ros messages and publishes them
 
         Args:
         (DetectionArray) detections: incoming detections
-        (publisher) pub_det: Publisher object
+        (publisher) image_outgoing: sensor_msgs/Image with face bounding boxes and labels
 
         Returns:
 
         """
 
         self.pub_det.publish(detections)
+        self.pub_det_rgb.publish(image_outgoing)
 
 
 

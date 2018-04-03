@@ -125,17 +125,18 @@ class PeopleObjectDetectionNode(object):
             cv_image = self._bridge.imgmsg_to_cv2(data, "bgr8")
 
             # Detect
-            (boxes, scores, classes, category_index) = \
+            (output_dict, category_index) = \
                 self._detector.detect(cv_image)
+
 
             # Create the message
             msg = \
                 utils.create_detection_msg(\
-                data, boxes, scores, classes, category_index)
+                data, output_dict, category_index)
 
             # Draw bounding boxes
             image_processed = \
-                self._detector.visualize(cv_image, boxes, scores, classes)
+                self._detector.visualize(cv_image, output_dict)
 
             # Convert numpy image into sensor img
             msg_im = \

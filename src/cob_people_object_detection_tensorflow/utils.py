@@ -44,18 +44,14 @@ def download_model(\
     except Exception as e:
         raise
 
-def create_detection_msg(im, boxes, scores, classes, category_index):
+def create_detection_msg(im, output_dict, category_index):
     """
     Creates the detection array message
 
     Args:
     im: (std_msgs_Image) incomming message
 
-    boxes: bounding boxes of objects
-
-    scores: scores of each bb
-
-    classes: class predictions
+    output_dict (dictionary) output of object detection model
 
     category_index: dictionary of labels (like a lookup table)
 
@@ -65,17 +61,22 @@ def create_detection_msg(im, boxes, scores, classes, category_index):
 
     """
 
+    boxes = output_dict["detection_boxes"]
+    scores = output_dict["detection_scores"]
+    classes = output_dict["detection_classes"]
+
     msg = DetectionArray()
 
     msg.header = im.header
 
-    scores_above_threshold = np.where(scores > 0.5)[1]
+    scores_above_threshold = np.where(scores > 0.5)[0]
 
     for s in scores_above_threshold:
         # Get the properties
-        bb = boxes[0,s,:]
-        sc = scores[0,s]
-        cl = classes[0,s]
+
+        bb = boxes[s,:]
+        sc = scores[s]
+        cl = classes[s]
 
         # Create the detection message
         detection = Detection()

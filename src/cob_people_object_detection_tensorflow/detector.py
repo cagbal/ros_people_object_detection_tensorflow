@@ -100,8 +100,10 @@ class Detector(object):
 
         self._sess = tf.Session(graph=self._detection_graph)
 
+    def detect(self, image):boxes: Bounding boxes for each object detection
+        score: Confidence score of each object detection
+        classes: (integer) class labels of each detection
 
-    def detectss(self, image):
         """
         Detects objects in the image given
 
@@ -109,45 +111,8 @@ class Detector(object):
         image: (numpy array) input image
 
         Returns:
-        (boxes, score, classes)
-        boxes: Bounding boxes for each object detection
-        score: Confidence score of each object detection
-        classes: (integer) class labels of each detection
-
+        output_dict (dictionary) Contains boxes, scores, masks etc.
         """
-
-        with self._detection_graph.as_default():
-
-            # Expand dimensions since the model expects
-            # images to have shape: [1, None, None, 3]
-            image_np_expanded = np.expand_dims(image, axis=0)
-            image_tensor = \
-               self._detection_graph.get_tensor_by_name('image_tensor:0')
-            # Bounding boxes for each object detection
-            boxes = \
-                self._detection_graph.get_tensor_by_name('detection_boxes:0')
-            # Confidence scores
-            scores = \
-                self._detection_graph.get_tensor_by_name('detection_scores:0')
-            classes = \
-               self._detection_graph.get_tensor_by_name('detection_classes:0')
-            num_detections = \
-               self._detection_graph.get_tensor_by_name('num_detections:0')
-
-            start = time.time()
-
-            # Detect
-            (boxes, scores, classes, num_detections) = self._sess.run(
-                [boxes, scores, classes, num_detections],
-                feed_dict={image_tensor: image_np_expanded})
-
-            end = time.time()
-
-            print end-start
-
-            return (boxes, scores, classes, self.category_index)
-
-    def detect(self, image):
         with self._detection_graph.as_default():
          # Get handles to input and output tensors
             ops = tf.get_default_graph().get_operations()

@@ -5,11 +5,11 @@ An extensive ROS toolbox for object detection and face recognition
 The codes are based on jupyter notebook inside of the object detection API.
 
 
-![alt text](https://github.com/cagbal/ros_people_object_detection_tensorflow/blob/feature-gif/images/objects.gif?raw=true)
+![alt text](https://github.com/cagbal/ros_people_object_detection_tensorflow/blob/master/images/objects.gif?raw=true)
 
-![alt text](https://github.com/cagbal/ros_people_object_detection_tensorflow/blob/feature-gif/images/people.gif?raw=true)
+![alt text](https://github.com/cagbal/ros_people_object_detection_tensorflow/blob/master/images/people.gif?raw=true)
 
-![alt text](https://github.com/cagbal/ros_people_object_detection_tensorflow/blob/feature-gif/images/mask_rcnn_masked.png?raw=true)
+![alt text](https://github.com/cagbal/ros_people_object_detection_tensorflow/blob/master/images/mask_rcnn_masked.png?raw=true)
 
 
 NOTE: Now, the code also recognizes the faces that in the scene by using amazing [face_recognition](https://github.com/ageitgey/face_recognition) library. Also, The code can now track the detections by using Sort tracker(Kalman based) thanks to [this repo](https://github.com/ZidanMusk/experimenting-with-sort). For licences, please check the licences of these repos as well.
@@ -21,6 +21,7 @@ NOTE: Now, the code also recognizes the faces that in the scene by using amazing
   - Detects the objects in images coming from a camera topic  
   - Publishes the scores, bounding boxes and labes of detection
   - Publishes detection image with bounding boxes as a sensor_msgs/Image
+  - Publishes the face recognition results
   - Tracks the detected objects
   - Publishes the results as DetectionArray msg (same message format with Detection)
   - Parameters can be set fom a Yaml file
@@ -77,6 +78,8 @@ Then,
 $ roslaunch cob_people_object_detection_tensorflow cob_people_object_detection_tensorflow.launch
 ```
 
+Then, it starts assigning an ID to the each detected objects and publishes the results to /object_tracker/tracks. Note that detected tracked object numbers may differ.
+
 If you also want to run the tracker,
 
 ```sh
@@ -85,27 +88,17 @@ $ roslaunch cob_people_object_detection_tensorflow cob_people_object_tracker.lau
 
 If you also want to run the face_recognition,
 
+put face images inside people folder and launch:
+
 ```sh
 $ roslaunch cob_people_object_detection_tensorflow cob_face_recognizer.launch
 ```
-
-Then, it starts assigning an ID to the each detected objects and publishes the results to /object_tracker/tracks. Note that detected tracked object numbers may differ.
-
 
 Example tracking result:
 ```sh
 439.0 -> chair with cost 6.06524180895
 439.0 -> chair with cost 0.911824197572
 439.0 -> chair with cost 2.71901614686
-439.0 -> chair with cost 1.04170203074
-439.0 -> chair with cost 1.88130732876
-439.0 -> chair with cost 4.28425248564
-445.0 -> person with cost 13.8111660328
-439.0 -> chair with cost 7.84435094254
-445.0 -> person with cost 4.55263180103
-439.0 -> chair with cost 6.22531288111
-445.0 -> person with cost 8.35561352346
-439.0 -> chair with cost 2.41282210935
 ```
 
 ##### Subscibes to:
@@ -115,6 +108,7 @@ Example tracking result:
 - /object_detection/detections (cob_perception_msgs/DetectionArray) Includes all the detections with probabilities, labels and bounding boxes
 - /object_detection/detections_image (sensor_msgs/Image) The image with bounding boxes
 - /object_tracker/tracks (cob_perception_msgs/DetectionArray) Includes just the tracked objects and their bounding boxes, labels. Here, ID is the detection id assigned by tracker. Example: DetectionArray.detections[0].id
+- /face_recognizer/faces (cob_perception_msgs/DetectionArray) Face labels with face and people bounding boxes
 
 ### Performance
 The five last detection times from my computer(Intel(R) Core(TM) i7-6820HK CPU @ 2.70GHz) in seconds:

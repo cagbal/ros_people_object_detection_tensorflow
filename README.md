@@ -38,6 +38,8 @@ This repo uses a number of open source projects to work properly:
 * [ROS]
 * [Numpy]
 * [face_recognition] https://github.com/ageitgey/face_recognition
+* [dlib] 
+* [protobuf]
 
 For Tracker part:
 * scikit-learn

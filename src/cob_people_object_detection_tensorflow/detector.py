@@ -100,10 +100,7 @@ class Detector(object):
 
         self._sess = tf.Session(graph=self._detection_graph)
 
-    def detect(self, image):boxes: Bounding boxes for each object detection
-        score: Confidence score of each object detection
-        classes: (integer) class labels of each detection
-
+    def detect(self, image):
         """
         Detects objects in the image given
 

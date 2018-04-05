@@ -69,7 +69,7 @@ class FaceRecognitionNode(object):
         self.database = self.initialize_database()
 
         ts = message_filters.ApproximateTimeSynchronizer(\
-            [self.sub_detection, self.sub_image], 2, 0.2)
+            [self.sub_detection, self.sub_image], 2, 0.3)
 
         ts.registerCallback(self.detection_callback)
 
@@ -173,6 +173,9 @@ class FaceRecognitionNode(object):
                         r = y + right
                         b = x + bottom
 
+                        print(b)
+                        print(t)
+
                         detection.label = "Unknown"
 
                         if True in matches:
@@ -180,10 +183,10 @@ class FaceRecognitionNode(object):
                             detection.label = self.database[1][ind]
 
                         # Modify the message
-                        detection.mask.roi.x  = t/self.scaling_factor
-                        detection.mask.roi.y = l/self.scaling_factor
-                        detection.mask.roi.width = (t -b)/self.scaling_factor
-                        detection.mask.roi.height = (r - l)/self.scaling_factor
+                        detection.mask.roi.x  = l/self.scaling_factor
+                        detection.mask.roi.y = t/self.scaling_factor
+                        detection.mask.roi.width = (r-l)/self.scaling_factor
+                        detection.mask.roi.height = (b-t)/self.scaling_factor
 
                         # Draw bounding boxes on current image
 

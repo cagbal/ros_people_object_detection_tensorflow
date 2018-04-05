@@ -1,5 +1,5 @@
 # name of the object detection model
-model_name: "ssd_inception_v2_coco_2017_11_17"
+model_name: "ssd_mobilenet_v1_coco_2017_11_17"
 
 # number of classes in dataset
 num_of_classes: 90
@@ -13,5 +13,5 @@ camera_namespace: "/camera/rgb/image_rect_color"
 # Set your depth image topic here, default is for openni2
 depth_namespace: "/camera/depth_registered/hw_registered/image_rect"
 
-# Video name, if you provide a video name with path algorithm will run on it, otherwise write "no" for getting from camera 
+# Video name, if you provide a video name with path algorithm will run on it, otherwise write "no" for getting from camera
 video_name: "no"

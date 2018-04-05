@@ -145,6 +145,9 @@ class FaceRecognitionNode(object):
 
         """
 
+        detections_out = DetectionArray()
+        detections_out.header = detections.header
+
         for i, detection in enumerate(detections.detections):
 
             if detection.label == "person":
@@ -180,10 +183,10 @@ class FaceRecognitionNode(object):
                             detection.label = self.database[1][ind]
 
                         # Modify the message
-                        detection.mask.roi.x  = t/self.scaling_factor
-                        detection.mask.roi.y = l/self.scaling_factor
-                        detection.mask.roi.width = (t -b)/self.scaling_factor
-                        detection.mask.roi.height = (r - l)/self.scaling_factor
+                        detection.mask.roi.x  = l/self.scaling_factor
+                        detection.mask.roi.y = t/self.scaling_factor
+                        detection.mask.roi.width = (r-l)/self.scaling_factor
+                        detection.mask.roi.height = (b-t)/self.scaling_factor
 
                         # Draw bounding boxes on current image
 
@@ -197,10 +200,12 @@ class FaceRecognitionNode(object):
                         (l + 2, t + 2), \
                         cv2.FONT_HERSHEY_DUPLEX, 1.0, (0, 0, 0), 1)
 
+                        detections_out.detections.append(detection)
+
                 except Exception as e:
                     print e
 
-        return (image, detections)
+        return (image, detections_out)
 
     def publish(self, detections, image_outgoing):
         """

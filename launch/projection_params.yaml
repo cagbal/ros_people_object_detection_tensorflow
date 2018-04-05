@@ -8,4 +8,10 @@ face_topic: "/face_recognizer/faces"
 output_topic: "/face_recognizer/faces/realworld/position"
 
 # Set your depth focal length
-focal_length: 0.00173667
+focal_length: 587.8
+
+# cx of depth camera
+cx: 351
+
+# cy for depth camera
+cy: 227

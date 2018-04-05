@@ -39,7 +39,8 @@ class ProjectionNode(object):
 
         self._bridge = CvBridge()
 
-        (depth_topic, face_topic, output_topic, f) = self.get_parameters()
+        (depth_topic, face_topic, output_topic, f, cx, cy) = \
+            self.get_parameters()
 
          # Subscribe to the face positions
         sub_obj = message_filters.Subscriber(face_topic ,\
@@ -52,13 +53,16 @@ class ProjectionNode(object):
         self.pub = rospy.Publisher(output_topic, \
             DetectionArray, queue_size=1)
 
-        ts = message_filters.ApproximateTimeSynchronizer([sub_obj, sub_depth], 2, 0.9)
+        ts = message_filters.ApproximateTimeSynchronizer(\
+            [sub_obj, sub_depth], \
+            2, \
+            0.9)
 
         ts.registerCallback(self.detection_callback)
 
-        (depth_topic, face_topic, output_topic, f) = self.get_parameters()
-
         self.f = f
+        self.cx = cx
+        self.cy = cy
 
         # spin
         rospy.spin()
@@ -84,8 +88,6 @@ class ProjectionNode(object):
         # get the number of detections
         no_of_detections = len(msg.detections)
 
-        print("hey")
-
         # Check if there is a detection
         if no_of_detections > 0:
             for i, detection in enumerate(msg.detections):
@@ -107,13 +109,13 @@ class ProjectionNode(object):
                     depth_mean = np.nanmedian(cv_depth[np.nonzero(cv_depth)])
 
 
-                    real_x = (x + width/2-320)*self.f*depth_mean
+                    real_x = (x + width/2-self.cx)*(depth_mean*0.001)/self.f
 
-                    real_y = (y + height/2-240)*self.f*depth_mean
+                    real_y = (y + height/2-self.cy)*(depth_mean*0.001)/self.f
 
                     msg.detections[i].pose.pose.position.x = real_x
                     msg.detections[i].pose.pose.position.y = real_y
-                    msg.detections[i].pose.pose.position.z = depth_mean
+                    msg.detections[i].pose.pose.position.z = depth_mean*0.001
 
                 except Exception as e:
                     print e
@@ -130,8 +132,10 @@ class ProjectionNode(object):
         face_topic = rospy.get_param('~face_topic')
         output_topic = rospy.get_param('~output_topic')
         f = rospy.get_param('~focal_length')
+        cx = rospy.get_param('~cx')
+        cy = rospy.get_param('~cy')
 
-        return (depth_topic, face_topic, output_topic, f)
+        return (depth_topic, face_topic, output_topic, f, cx, cy)
 
 
 

@@ -45,8 +45,6 @@
   <depend>cob_perception_msgs</depend>
   <depend>cv_bridge</depend>
   <depend>sensor_msgs</depend>
-  <depend>libpcl-all-dev</depend>
-  <depend>libpcl-all</depend>
 
 
   <!-- The export tag contains other, unspecified, tags -->

@@ -69,7 +69,7 @@ class FaceRecognitionNode(object):
         self.database = self.initialize_database()
 
         ts = message_filters.ApproximateTimeSynchronizer(\
-            [self.sub_detection, self.sub_image], 2, 0.3)
+            [self.sub_detection, self.sub_image], 2, 0.2)
 
         ts.registerCallback(self.detection_callback)
 
@@ -145,6 +145,9 @@ class FaceRecognitionNode(object):
 
         """
 
+        detections_out = DetectionArray()
+        detections_out.header = detections.header
+
         for i, detection in enumerate(detections.detections):
 
             if detection.label == "person":
@@ -173,9 +176,6 @@ class FaceRecognitionNode(object):
                         r = y + right
                         b = x + bottom
 
-                        print(b)
-                        print(t)
-
                         detection.label = "Unknown"
 
                         if True in matches:
@@ -200,10 +200,12 @@ class FaceRecognitionNode(object):
                         (l + 2, t + 2), \
                         cv2.FONT_HERSHEY_DUPLEX, 1.0, (0, 0, 0), 1)
 
+                        detections_out.detections.append(detection)
+
                 except Exception as e:
                     print e
 
-        return (image, detections)
+        return (image, detections_out)
 
     def publish(self, detections, image_outgoing):
         """

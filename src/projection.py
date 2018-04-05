@@ -52,7 +52,7 @@ class ProjectionNode(object):
         self.pub = rospy.Publisher(output_topic, \
             DetectionArray, queue_size=1)
 
-        ts = message_filters.ApproximateTimeSynchronizer([sub_obj, sub_depth], 1, 0.7)
+        ts = message_filters.ApproximateTimeSynchronizer([sub_obj, sub_depth], 2, 0.9)
 
         ts.registerCallback(self.detection_callback)
 
@@ -84,6 +84,7 @@ class ProjectionNode(object):
         # get the number of detections
         no_of_detections = len(msg.detections)
 
+        print("hey")
 
         # Check if there is a detection
         if no_of_detections > 0:

@@ -15,7 +15,7 @@ An extensive ROS toolbox for object detection and face recognition with 2D and 3
 NOTE: The object detection codes are based on jupyter notebook inside of the object detection API. The code also recognizes the faces that in the scene by using amazing [face_recognition](https://github.com/ageitgey/face_recognition) library. Also, The code can now track the detections by using Sort tracker(Kalman based) thanks to [this repo](https://github.com/ZidanMusk/experimenting-with-sort). For licences, please check the licences of these repos as well.
 
 # Flowchart
-![Flowchart](https://github.com/cagbal/ros_people_object_detection_tensorflow/blob/feature-projection-to-3d-space/images/people_object_detection_diagram.png?raw=true)
+![Flowchart](https://github.com/cagbal/ros_people_object_detection_tensorflow/blob/master/images/people_object_detection_diagram.png?raw=true)
 
 # Features
 

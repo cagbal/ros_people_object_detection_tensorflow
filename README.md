@@ -1,22 +1,21 @@
-# cob_people_object_detection_tensorflow
+# ROS People Object Detection Tensorflow
 
 [![Open Source Love](https://badges.frapsoft.com/os/v2/open-source.svg?v=103)](https://github.com/cagbal/ros_people_object_detection_tensorflow) [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/cagbal/ros_people_object_detection_tensorflow)
 
-An extensive ROS toolbox for object detection and face recognition
+An extensive ROS toolbox for object detection and face recognition with 2D and 3D support which makes your Robot understand the environment
 
-The codes are based on jupyter notebook inside of the object detection API.
+# Demo
 
+![Object Detection](https://github.com/cagbal/ros_people_object_detection_tensorflow/blob/master/images/objects.gif?raw=true)
 
-![alt text](https://github.com/cagbal/ros_people_object_detection_tensorflow/blob/master/images/objects.gif?raw=true)
+![Face Recognition](https://github.com/cagbal/ros_people_object_detection_tensorflow/blob/master/images/people.gif?raw=true)
 
-![alt text](https://github.com/cagbal/ros_people_object_detection_tensorflow/blob/master/images/people.gif?raw=true)
+![Mask RCNN](https://github.com/cagbal/ros_people_object_detection_tensorflow/blob/master/images/mask_rcnn_masked.png?raw=true&s=1)
 
-![alt text](https://github.com/cagbal/ros_people_object_detection_tensorflow/blob/master/images/mask_rcnn_masked.png?raw=true)
+NOTE: The object detection codes are based on jupyter notebook inside of the object detection API. The code also recognizes the faces that in the scene by using amazing [face_recognition](https://github.com/ageitgey/face_recognition) library. Also, The code can now track the detections by using Sort tracker(Kalman based) thanks to [this repo](https://github.com/ZidanMusk/experimenting-with-sort). For licences, please check the licences of these repos as well.
 
-
-NOTE: Now, the code also recognizes the faces that in the scene by using amazing [face_recognition](https://github.com/ageitgey/face_recognition) library. Also, The code can now track the detections by using Sort tracker(Kalman based) thanks to [this repo](https://github.com/ZidanMusk/experimenting-with-sort). For licences, please check the licences of these repos as well.
-
-
+# Flowchart
+![Flowchart](https://github.com/cagbal/ros_people_object_detection_tensorflow/blob/feature-projection-to-3d-space/images/people_object_detection_diagram.png?raw=true)
 
 # Features
 
@@ -24,12 +23,12 @@ NOTE: Now, the code also recognizes the faces that in the scene by using amazing
   - Publishes the scores, bounding boxes and labes of detection
   - Publishes detection image with bounding boxes as a sensor_msgs/Image
   - Publishes the face recognition results
-  - Tracks the detected objects
-  - Publishes the results as DetectionArray msg (same message format with Detection)
+  - If the Depth stream avaliable from a kinect or from a similar device, it can publish the depth of the face
+  - TODO: Depth estimation is based on median filter applied to non-nan values inside the face bounding box, if you have any suggestions: [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/cagbal/ros_people_object_detection_tensorflow)
   - Parameters can be set fom a Yaml file
   - Detects the faces inside the person area
-  - TODO: you can currently use MASK RCNN, but it just publishes the mask drawn on the image, I am trying to publish the mask as a ROS message.
-  - TODO: I am no happy with tracking. There are some issues.
+  - TODO: you can currently use MASK RCNN, but it just publishes the mask drawn on the image, I am trying to publish the mask as a ROS message. [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/cagbal/ros_people_object_detection_tensorflow)
+  - TODO: I am no happy with tracking.  [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/cagbal/ros_people_object_detection_tensorflow)
 
 ### Tech
 
@@ -40,7 +39,7 @@ This repo uses a number of open source projects to work properly:
 * [ROS]
 * [Numpy]
 * [face_recognition] https://github.com/ageitgey/face_recognition
-* [dlib] 
+* [dlib]
 * [protobuf]
 
 For Tracker part:
@@ -66,11 +65,11 @@ $ catkin_make
 $ pip install face_recognition
 ```
 
+The repo includes the fastest mobilenet based method, so you can skip the steps below.
+
 Then, install a model from [Model Zoo](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/detection_model_zoo.md)  of tensorflow object detection.
 
 and put those models into src/object_detection/, lastly set the model_name parameter of [launch/cob_people_object_detection_tensoflow_params.yaml](https://github.com/cagbal/ros_people_object_detection_tensorflow/blob/master/launch/cob_people_object_detection_tensorflow_params.yaml)
-
-I could not include models because of their sizes.
 
 ### Running
 
@@ -98,12 +97,13 @@ put face images inside people folder and launch:
 $ roslaunch cob_people_object_detection_tensorflow cob_face_recognizer.launch
 ```
 
-Example tracking result:
+If you also want to run depth finder,
+
 ```sh
-439.0 -> chair with cost 6.06524180895
-439.0 -> chair with cost 0.911824197572
-439.0 -> chair with cost 2.71901614686
+$ roslaunch cob_people_object_detection_tensorflow projection.launch
 ```
+
+and it sets detections.pose.pose.position.x/y/z and pusblishes it.
 
 ##### Subscibes to:
 - To any RGB image topic that you set in *params.yaml file.

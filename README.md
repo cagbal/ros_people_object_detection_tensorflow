@@ -75,7 +75,14 @@ and put those models into src/object_detection/, lastly set the model_name param
 
 Turn on your camera driver in ROS and set your input RGB topic name in yaml config file under launch directory. The default is for openni2.
 
-Then,
+Then, 
+```sh
+$ roslaunch cob_people_object_detection_tensorflow alltogether.launch
+```
+
+The code above will start everything. It is perfect for starting with this repo. However, if you want some flexibility then you need to launch every node one by one. As below:
+
+For object detection:
 
 ```sh
 $ roslaunch cob_people_object_detection_tensorflow cob_people_object_detection_tensorflow.launch

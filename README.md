@@ -40,6 +40,7 @@ This repo uses a number of open source projects to work properly:
 * [Numpy]
 * [face_recognition] https://github.com/ageitgey/face_recognition
 * [dlib]
+* [cob_perception_common] https://github.com/ipa-rmb/cob_perception_common.git
 * [protobuf]
 
 For Tracker part:
@@ -55,7 +56,7 @@ Then,
 ```sh
 $ cd && mkdir -p catkin_ws/src && cd ..
 $ catkin_make && cd src
-$ git clone --recursive https://github.com/cagbal/cob_people_object_detection_tensorflow.git
+$ git clone --recursive https://github.com/cagbal/ros_people_object_detection_tensorflow.git
 $ git clone https://github.com/ipa-rmb/cob_perception_common.git
 $ cd cob_people_object_detection_tensorflow/src
 $ protoc object_detection/protos/*.proto --python_out=.

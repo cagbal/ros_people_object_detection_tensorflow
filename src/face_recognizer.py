@@ -1,12 +1,19 @@
 #!/usr/bin/env python
 """
-A ROS node to Finding Faces inside the detections of SSD network.
+A ROS node to get face bounding boxes inside of person bounding boxes returned
+by object detection node.
+
+This node gets the people bounding boxes and applies face searching and face
+comparison by using face_recognition Python library.
+
+The people who are placed in /people directory will be automatically fetched
+and their face features will be compared to incoming face images. If a similar
+face is found, the name of the closest face image will be assigned to that
+bounding box.
 
 Author:
     Cagatay Odabasi -- cagatay.odabasi@ipa.fraunhofer.de
 """
-
-import time
 
 import glob
 
@@ -18,27 +25,35 @@ import numpy as np
 
 import cv2
 
-from cv_bridge import CvBridge, CvBridgeError
+from cv_bridge import CvBridge
 
 from sensor_msgs.msg import Image
 
-from cob_perception_msgs.msg import Detection, DetectionArray, Rect
-
-from cob_people_object_detection_tensorflow.detector import Detector
-
-from cob_people_object_detection_tensorflow import utils
+from cob_perception_msgs.msg import DetectionArray
 
 import face_recognition as fr
 
 import rospkg
 
-cd = rospack = rospkg.RosPack()
+
+# Get the package directory
+rospack = rospkg.RosPack()
 
 cd = rospack.get_path('cob_people_object_detection_tensorflow')
 
 
 class FaceRecognitionNode(object):
-    """docstring for PeopleObjectDetectionNode."""
+    """A ROS node to get face bounding boxes inside of person bounding boxes
+
+    _bridge (CvBridge): Bridge between ROS and CV image
+    pub_det (Publisher): Publisher object for detections (bounding box, labels)
+    pub_det_rgb (Publisher): Publisher object for detection image
+    sub_detection (Subscriber): Subscriber object for object_detection
+    sub_image (Subscriber): Subscriber object for RGB image from camera
+    scaling_factor (Float): Input image will be scaled down with this
+    database (List): Contains face features of people inside /people folder
+
+    """
     def __init__(self):
         super(FaceRecognitionNode, self).__init__()
 
@@ -46,7 +61,8 @@ class FaceRecognitionNode(object):
         rospy.init_node('face_recognition_node', anonymous=False)
 
         # Get the parameters
-        (image_topic, detection_topic, output_topic, output_topic_rgb) = self.get_parameters()
+        (image_topic, detection_topic, output_topic, output_topic_rgb) \
+            = self.get_parameters()
 
         self._bridge = CvBridge()
 
@@ -104,11 +120,10 @@ class FaceRecognitionNode(object):
     def detection_callback(self, detections, image):
         """
         Callback for RGB images and detections
-        Args:
-        detections: detections array message from cob package
-        image: sensor image
 
-        image: rgb frame in openCV format
+        Args:
+        detections (cob_perception_msgs/DetectionArray) : detections array
+        image (sensor_msgs/Image): RGB image from camera
 
         """
 
@@ -139,9 +154,8 @@ class FaceRecognitionNode(object):
 
         Returns:
 
-        (numpy.ndarray) image: image with labels and bounding boxes
-        (DetectionArray) detections: detections array message from cob package
-
+        (numpy.ndarray): image with labels and bounding boxes
+        (cob_perception_msgs/DetectionArray): detections with labeled faces
 
         """
 
@@ -212,10 +226,8 @@ class FaceRecognitionNode(object):
         Creates the ros messages and publishes them
 
         Args:
-        (DetectionArray) detections: incoming detections
-        (publisher) image_outgoing: sensor_msgs/Image with face bounding boxes and labels
-
-        Returns:
+        detections (cob_perception_msgs/DetectionArray): incoming detections
+        image_outgoing (sensor_msgs/Image): with face bounding boxes and labels
 
         """
 
@@ -237,8 +249,6 @@ class FaceRecognitionNode(object):
           - mario.png
           - jennifer.png
           - melanie.png
-
-        Args:
 
         Returns:
         (tuple) (people_list, name_list) (features of people, names of people)

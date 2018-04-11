@@ -132,7 +132,7 @@ class PeopleObjectDetectionNode(object):
             # Create the message
             msg = \
                 utils.create_detection_msg(\
-                data, output_dict, category_index)
+                data, output_dict, category_index, self._bridge)
 
             # Draw bounding boxes
             image_processed = \

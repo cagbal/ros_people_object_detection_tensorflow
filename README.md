@@ -27,8 +27,8 @@ NOTE: The object detection codes are based on jupyter notebook inside of the obj
   - TODO: Depth estimation is based on median filter applied to non-nan values inside the face bounding box, if you have any suggestions: [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/cagbal/ros_people_object_detection_tensorflow)
   - Parameters can be set fom a Yaml file
   - Detects the faces inside the person area
-  - TODO: you can currently use MASK RCNN, but it just publishes the mask drawn on the image, I am trying to publish the mask as a ROS message. [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/cagbal/ros_people_object_detection_tensorflow)
-  - TODO: I am no happy with tracking.  [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/cagbal/ros_people_object_detection_tensorflow)
+  - [Completed] ~~TODO: you can currently use MASK RCNN, but it just publishes the mask drawn on the image, I am trying to publish the mask as a ROS message.~~ Now, it publishes it under detections.detection.mask.mask as an sensor image.
+  - TODO: I am not happy with tracking.  [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/cagbal/ros_people_object_detection_tensorflow)
 
 ### Tech
 
@@ -75,7 +75,8 @@ and put those models into src/object_detection/, lastly set the model_name param
 
 Turn on your camera driver in ROS and set your input RGB topic name in yaml config file under launch directory. The default is for openni2.
 
-Then, 
+For running everything, (This will work for both 2D and 3D)
+
 ```sh
 $ roslaunch cob_people_object_detection_tensorflow alltogether.launch
 ```

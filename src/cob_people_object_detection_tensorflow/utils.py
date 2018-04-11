@@ -44,7 +44,7 @@ def download_model(\
     except Exception as e:
         raise
 
-def create_detection_msg(im, output_dict, category_index):
+def create_detection_msg(im, output_dict, category_index, bridge):
     """
     Creates the detection array message
 
@@ -55,6 +55,8 @@ def create_detection_msg(im, output_dict, category_index):
 
     category_index: dictionary of labels (like a lookup table)
 
+    bridge (cv_bridge) : cv bridge object for converting
+
     Returns:
 
     msg (cob_perception_msgs/DetectionArray) The message to be sent
@@ -64,6 +66,10 @@ def create_detection_msg(im, output_dict, category_index):
     boxes = output_dict["detection_boxes"]
     scores = output_dict["detection_scores"]
     classes = output_dict["detection_classes"]
+    masks = None
+
+    if 'detection_masks' in output_dict:
+        masks = output_dict["detection_masks"]
 
     msg = DetectionArray()
 
@@ -89,6 +95,13 @@ def create_detection_msg(im, output_dict, category_index):
         detection.mask.roi.y = int((im.height-1) * bb[0])
         detection.mask.roi.width = int((im.width-1) * (bb[3]-bb[1]))
         detection.mask.roi.height = int((im.height-1) * (bb[2]-bb[0]))
+
+        if 'detection_masks' in output_dict:
+            detection.mask.mask = \
+                bridge.cv2_to_imgmsg(masks[s], "mono8")
+
+            print detection.mask.mask.width
+
 
         msg.detections.append(detection)
 

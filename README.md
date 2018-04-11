@@ -75,7 +75,8 @@ and put those models into src/object_detection/, lastly set the model_name param
 
 Turn on your camera driver in ROS and set your input RGB topic name in yaml config file under launch directory. The default is for openni2.
 
-Then,
+For running everything, (This will work for both 2D and 3D)
+
 ```sh
 $ roslaunch cob_people_object_detection_tensorflow alltogether.launch
 ```

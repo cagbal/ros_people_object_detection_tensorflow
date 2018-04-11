@@ -82,7 +82,7 @@ class ProjectionNode(object):
         Callback for RGB images: The main logic is applied here
 
         Args:
-        msg (cob_perception_msgs/detections): detections array
+        msg (cob_perception_msgs/DetectionArray): detections array
         depth (sensor_msgs/PointCloud2): depth image from camera
 
         """
@@ -127,12 +127,13 @@ class ProjectionNode(object):
         Gets the necessary parameters from parameter server
 
         Returns:
-        depth_topic (String): Incoming depth topic name
-        face_topic (String): Incoming face bounding box topic name
-        output_topic (String): Outgoing depth topic name
-        f (Float): Focal Length
-        cx (Int): Principle Point Horizontal
-        cy (Int): Principle Point Vertical
+        (tuple) :
+            depth_topic (String): Incoming depth topic name
+            face_topic (String): Incoming face bounding box topic name
+            output_topic (String): Outgoing depth topic name
+            f (Float): Focal Length
+            cx (Int): Principle Point Horizontal
+            cy (Int): Principle Point Vertical
         """
 
         depth_topic  = rospy.get_param("~depth_topic")

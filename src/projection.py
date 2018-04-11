@@ -1,36 +1,38 @@
 #!/usr/bin/env python
 """
-A ROS node to detect objects via TensorFlow Object Detection API.
+A ROS node to get 3D values of bounding boxes returned by face_recognizer node.
+
+This node gets the face bounding boxes and gets the real world coordinates of
+them by using depth values. It simply gets the x and y values of center point
+and gets the median value of face depth values as z value of face.
 
 Author:
     Cagatay Odabasi -- cagatay.odabasi@ipa.fraunhofer.de
 """
 
-import time
-
 import rospy
 
 import message_filters
 
-import numpy
+import numpy as np
 
-import cv2
+from cv_bridge import CvBridge
 
-from cv_bridge import CvBridge, CvBridgeError
+from sensor_msgs.msg import Image
 
-from sensor_msgs.msg import Image, PointCloud2
-
-from cob_perception_msgs.msg import Detection, DetectionArray, Rect
-
-from pcl_helper import *
-
-from skimage import filters
-
-
+from cob_perception_msgs.msg import DetectionArray
 
 
 class ProjectionNode(object):
-    """docstring for ProjectionNode."""
+    """Get 3D values of bounding boxes returned by face_recognizer node.
+
+    _bridge (CvBridge): Bridge between ROS and CV image
+    pub (Publisher): Publisher object for face depth results
+    f (Float): Focal Length
+    cx (Int): Principle Point Horizontal
+    cy (Int): Principle Point Vertical
+
+    """
     def __init__(self):
         super(ProjectionNode, self).__init__()
 
@@ -43,7 +45,7 @@ class ProjectionNode(object):
             self.get_parameters()
 
          # Subscribe to the face positions
-        sub_obj = message_filters.Subscriber(face_topic ,\
+        sub_obj = message_filters.Subscriber(face_topic,\
             DetectionArray)
 
         sub_depth = message_filters.Subscriber(depth_topic,\
@@ -53,6 +55,7 @@ class ProjectionNode(object):
         self.pub = rospy.Publisher(output_topic, \
             DetectionArray, queue_size=1)
 
+        # Create the message filter
         ts = message_filters.ApproximateTimeSynchronizer(\
             [sub_obj, sub_depth], \
             2, \
@@ -76,10 +79,11 @@ class ProjectionNode(object):
 
     def detection_callback(self, msg, depth):
         """
-        Callback for RGB images
+        Callback for RGB images: The main logic is applied here
+
         Args:
-        detections: detections array message from cob package
-        point_cloud (sensor_msgs/PointCloud2) point cloud input from camera
+        msg (cob_perception_msgs/detections): detections array
+        depth (sensor_msgs/PointCloud2): depth image from camera
 
         """
 
@@ -91,9 +95,6 @@ class ProjectionNode(object):
         # Check if there is a detection
         if no_of_detections > 0:
             for i, detection in enumerate(msg.detections):
-
-                label = detection.label
-                confidence = detection.score
 
                 x =  detection.mask.roi.x
                 y = detection.mask.roi.y
@@ -107,7 +108,6 @@ class ProjectionNode(object):
                 try:
 
                     depth_mean = np.nanmedian(cv_depth[np.nonzero(cv_depth)])
-
 
                     real_x = (x + width/2-self.cx)*(depth_mean*0.001)/self.f
 
@@ -126,6 +126,13 @@ class ProjectionNode(object):
         """
         Gets the necessary parameters from parameter server
 
+        Returns:
+        depth_topic (String): Incoming depth topic name
+        face_topic (String): Incoming face bounding box topic name
+        output_topic (String): Outgoing depth topic name
+        f (Float): Focal Length
+        cx (Int): Principle Point Horizontal
+        cy (Int): Principle Point Vertical
         """
 
         depth_topic  = rospy.get_param("~depth_topic")
@@ -136,7 +143,6 @@ class ProjectionNode(object):
         cy = rospy.get_param('~cy')
 
         return (depth_topic, face_topic, output_topic, f, cx, cy)
-
 
 
 def main():

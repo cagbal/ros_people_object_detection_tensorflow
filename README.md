@@ -125,11 +125,11 @@ and it sets detections.pose.pose.position.x/y/z and pusblishes it.
 
 ### Performance
 The five last detection times from my computer(Intel(R) Core(TM) i7-6820HK CPU @ 2.70GHz) in seconds:
-0.105810880661
-0.108750104904
-0.112195014954
-0.115020036697
-0.108013153076
+- 0.105810880661
+- 0.108750104904
+- 0.112195014954
+- 0.115020036697
+- 0.108013153076
 
 ### Contributors
 - cagbal

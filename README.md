@@ -12,6 +12,9 @@ An extensive ROS toolbox for object detection and face recognition with 2D and 3
 
 ![Mask RCNN](https://github.com/cagbal/ros_people_object_detection_tensorflow/blob/master/images/mask_rcnn_masked.png?raw=true&s=1)
 
+![Tracking](https://github.com/cagbal/ros_people_object_detection_tensorflow/blob/master/images/tracking.png?raw=true&s=1)
+
+
 NOTE: The object detection codes are based on jupyter notebook inside of the object detection API. The code also recognizes the faces that in the scene by using amazing [face_recognition](https://github.com/ageitgey/face_recognition) library. Also, The code can now track the detections by using Sort tracker(Kalman based) thanks to [this repo](https://github.com/ZidanMusk/experimenting-with-sort). For licences, please check the licences of these repos as well.
 
 # Flowchart
@@ -23,12 +26,13 @@ NOTE: The object detection codes are based on jupyter notebook inside of the obj
   - Publishes the scores, bounding boxes and labes of detection
   - Publishes detection image with bounding boxes as a sensor_msgs/Image
   - Publishes the face recognition results
+  - Publishes the tracking number(an integer) for each tracked object assigned by object tracker
   - If the Depth stream avaliable from a kinect or from a similar device, it can publish the depth of the face
   - TODO: Depth estimation is based on median filter applied to non-nan values inside the face bounding box, if you have any suggestions: [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/cagbal/ros_people_object_detection_tensorflow)
   - Parameters can be set fom a Yaml file
   - Detects the faces inside the person area
   - [Completed] ~~TODO: you can currently use MASK RCNN, but it just publishes the mask drawn on the image, I am trying to publish the mask as a ROS message.~~ Now, it publishes it under detections.detection.mask.mask as an sensor image.
-  - TODO: I am not happy with tracking.  [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/cagbal/ros_people_object_detection_tensorflow)
+  - [Completed thanks to @thjoshi] ~~TODO: I am not happy with tracking.~~  
 
 ### Tech
 

@@ -109,7 +109,6 @@ class PeopleObjectTrackerNode(object):
             for i, detection in enumerate(detections.detections):
 
                 if detection.label in self.labels:
-                    print detection.label
                     x =  detection.mask.roi.x
                     y = detection.mask.roi.y
                     width =  detection.mask.roi.width

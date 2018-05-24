@@ -143,7 +143,7 @@ Apache (but please also look at tensorflow, tf object detection, face_recognitio
 
 Acknowledgement
 ---
-My works are supported by SOCRATES which is an MSCA-ITN-2016 – Innovative Training Networks funded by EC under grant
+My works in Fraunhofer IPA, Stuttgart are supported by SOCRATES which is an MSCA-ITN-2016 – Innovative Training Networks funded by EC under grant
 agreement No 721619.
 
 You can find a lot of information regarding SOCRATES [here](http://www.socrates-project.eu/).

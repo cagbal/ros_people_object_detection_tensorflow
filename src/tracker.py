@@ -41,7 +41,7 @@ class PeopleObjectTrackerNode(object):
 
         # Get the parameters
         (detection_topic, tracker_topic, cost_threshold, \
-            max_age, min_hits, labels) = \
+            max_age, min_hits) = \
             self.get_parameters()
 
         self._bridge = CvBridge()
@@ -49,8 +49,6 @@ class PeopleObjectTrackerNode(object):
         self.tracker =  sort.Sort(max_age=max_age, min_hits=min_hits)
 
         self.cost_threshold = cost_threshold
-
-        self.labels = labels
 
         # Advertise the result of Object Tracker
         self.pub_trackers = rospy.Publisher(tracker_topic, \
@@ -77,10 +75,9 @@ class PeopleObjectTrackerNode(object):
         cost_threhold = rospy.get_param('~cost_threhold')
         min_hits = rospy.get_param('~min_hits')
         max_age = rospy.get_param('~max_age')
-        labels = rospy.get_param("~labels")
 
         return (detection_topic, tracker_topic, cost_threhold, \
-            max_age, min_hits, labels)
+            max_age, min_hits)
 
 
     def shutdown(self):
@@ -108,7 +105,7 @@ class PeopleObjectTrackerNode(object):
         if len(detections.detections) > 0:
             for i, detection in enumerate(detections.detections):
 
-                if detection.label in self.labels:
+                if True:
                     x =  detection.mask.roi.x
                     y = detection.mask.roi.y
                     width =  detection.mask.roi.width
@@ -151,6 +148,8 @@ class PeopleObjectTrackerNode(object):
                     detections_copy[j-1].id = int(tracks[i, 4])
 
                     detections.detections.append(detections_copy[j-1])
+
+            print("------------")
 
 
         else:

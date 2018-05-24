@@ -11,7 +11,4 @@ cost_threhold: 15
 min_hits: 1
 
 # max age
-max_age: 1
-
-# labels to track
-labels: ["person", "chair", "tv", "monitor"]
+max_age: 5

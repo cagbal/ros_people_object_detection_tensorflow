@@ -116,9 +116,9 @@ class PeopleObjectTrackerNode(object):
                     score = detection.score
 
                     det_list = numpy.vstack((det_list, \
-                        [x, y, width, height, score]))
-                else:
-                    del detections.detections[i]
+                        [x, y, x+width, y+height, score]))
+                #else:
+                #    del detections.detections[i]
 
         # Call the tracker
         tracks = self.tracker.update(det_list)

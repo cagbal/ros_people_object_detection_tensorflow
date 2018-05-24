@@ -148,7 +148,7 @@ class Detector(object):
 
             end = time.time()
 
-            print end-start
+            #print end-start
 
             # all outputs are float32 numpy arrays, so convert types as appropriate
             output_dict['num_detections'] = int(output_dict['num_detections'][0])

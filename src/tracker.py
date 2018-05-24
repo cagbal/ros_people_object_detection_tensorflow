@@ -109,6 +109,7 @@ class PeopleObjectTrackerNode(object):
             for i, detection in enumerate(detections.detections):
 
                 if detection.label in self.labels:
+                    print detection.label
                     x =  detection.mask.roi.x
                     y = detection.mask.roi.y
                     width =  detection.mask.roi.width
@@ -117,8 +118,8 @@ class PeopleObjectTrackerNode(object):
 
                     det_list = numpy.vstack((det_list, \
                         [x, y, x+width, y+height, score]))
-                #else:
-                #    del detections.detections[i]
+                else:
+                    del detections.detections[i]
 
         # Call the tracker
         tracks = self.tracker.update(det_list)
@@ -128,7 +129,7 @@ class PeopleObjectTrackerNode(object):
 
         detections.detections = []
 
-        if len(det_list) > 1:
+        if len(det_list) > 0:
 
             # Create cost matrix
             # Double for in Python :(

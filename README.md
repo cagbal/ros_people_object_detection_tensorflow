@@ -6,12 +6,16 @@ An extensive ROS toolbox for object detection & tracking and face recognition wi
 
 # Demo
 
+### Object Detector Output:
 ![Object Detection](https://github.com/cagbal/ros_people_object_detection_tensorflow/blob/master/images/objects.gif?raw=true)
-
+### ----------
+### Face Recognizer Output:
 ![Face Recognition](https://github.com/cagbal/ros_people_object_detection_tensorflow/blob/master/images/people.gif?raw=true)
-
+### ----------
+### Mask RCNN Output:
 ![Mask RCNN](https://github.com/cagbal/ros_people_object_detection_tensorflow/blob/master/images/mask_rcnn_masked.png?raw=true&s=1)
-
+### ----------
+### Object Tracker Output:
 ![Tracking](https://github.com/cagbal/ros_people_object_detection_tensorflow/blob/master/images/tracking.png?raw=true&s=1)
 
 

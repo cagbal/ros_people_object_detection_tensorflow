@@ -14,4 +14,4 @@ min_hits: 1
 max_age: 1
 
 # labels to track
-labels: ["person", "chair"]
+labels: ["person", "chair", "tv", "monitor"]

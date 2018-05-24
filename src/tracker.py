@@ -116,7 +116,7 @@ class PeopleObjectTrackerNode(object):
                     score = detection.score
 
                     det_list = numpy.vstack((det_list, \
-                        [x, y, width, height, score]))
+                        [x, y, x+width, y+height, score]))
                 else:
                     del detections.detections[i]
 
@@ -128,7 +128,7 @@ class PeopleObjectTrackerNode(object):
 
         detections.detections = []
 
-        if len(det_list) > 1:
+        if len(det_list) > 0:
 
             # Create cost matrix
             # Double for in Python :(

@@ -131,6 +131,10 @@ The five last detection times from my computer(Intel(R) Core(TM) i7-6820HK CPU @
 0.115020036697
 0.108013153076
 
+### Contributors
+- cagbal
+- thjoshi
+
 License
 ----
 

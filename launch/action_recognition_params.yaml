@@ -1,0 +1,14 @@
+# Set your detection topic here
+detection_topic: "/object_detection/detections"
+
+# Set your camera topic here
+camera_topic: "/camera/rgb/image_rect_color"
+
+# Set your output topic here
+output_topic: "/action_recognition/action_predictions"
+
+# The number of frames between each prediction
+recognition_interval: 80
+
+# Frame buffer size
+buffer_size: 100

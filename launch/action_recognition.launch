@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+
+<launch>
+  <node name="action_recognition" pkg="cob_people_object_detection_tensorflow" type="action_recognition.py" output="screen">
+    <rosparam command="load" file="$(find cob_people_object_detection_tensorflow)/launch/action_recognition_params.yaml"/>
+  </node>
+</launch>

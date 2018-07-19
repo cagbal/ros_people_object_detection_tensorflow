@@ -142,6 +142,7 @@ Then, you will see the probabilities published on /action_recognition/action_pre
 - /object_detection/detections_image (sensor_msgs/Image) The image with bounding boxes
 - /object_tracker/tracks (cob_perception_msgs/DetectionArray) Includes just the tracked objects and their bounding boxes, labels. Here, ID is the detection id assigned by tracker. Example: DetectionArray.detections[0].id
 - /face_recognizer/faces (cob_perception_msgs/DetectionArray) Face labels with face and people bounding boxes
+- /action_recognition/action_predictions (cob_perception_msgs/ActionRecognitionmsg) Action recognition probabilities with Kinetics 600 Dataset labels
 
 ### Performance
 The five last detection times from my computer(Intel(R) Core(TM) i7-6820HK CPU @ 2.70GHz) in seconds:

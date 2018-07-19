@@ -67,7 +67,8 @@ Then,
 ```sh
 $ cd && mkdir -p catkin_ws/src && cd ..
 $ catkin_make && cd src
-$ git clone --recursive https://github.com/cagbal/ros_people_object_detection_tensorflow.git
+$ git clone --recursive https://github.com/cagbal/
+ple_object_detection_tensorflow.git
 $ git clone https://github.com/cagbal/cob_perception_common.git
 $ cd cob_people_object_detection_tensorflow/src
 $ protoc object_detection/protos/*.proto --python_out=.
@@ -90,7 +91,7 @@ Turn on your camera driver in ROS and set your input RGB topic name in yaml conf
 For running everything, (This will work for both 2D and 3D)
 
 ```sh
-$ roslaunch ros_people_object_detection_tensorflow alltogether.launch
+$ roslaunch cob_people_object_detection_tensorflow alltogether.launch
 ```
 
 The code above will start everything. It is perfect for starting with this repo. However, if you want some flexibility then you need to launch every node one by one. As below:
@@ -98,7 +99,7 @@ The code above will start everything. It is perfect for starting with this repo.
 For object detection:
 
 ```sh
-$ roslaunch ros_people_object_detection_tensorflow cob_people_object_detection_tensorflow.launch
+$ roslaunch cob_people_object_detection_tensorflow cob_people_object_detection_tensorflow.launch
 ```
 
 Then, it starts assigning an ID to the each detected objects and publishes the results to /object_tracker/tracks. Note that detected tracked object numbers may differ.
@@ -106,7 +107,7 @@ Then, it starts assigning an ID to the each detected objects and publishes the r
 If you also want to run the tracker,
 
 ```sh
-$ roslaunch ros_people_object_detection_tensorflow cob_people_object_tracker.launch
+$ roslaunch cob_people_object_detection_tensorflow cob_people_object_tracker.launch
 ```
 
 If you also want to run the face_recognition,
@@ -114,13 +115,13 @@ If you also want to run the face_recognition,
 put face images inside people folder and launch:
 
 ```sh
-$ roslaunch ros_people_object_detection_tensorflow cob_face_recognizer.launch
+$ roslaunch cob_people_object_detection_tensorflow cob_face_recognizer.launch
 ```
 
 If you also want to run depth finder,
 
 ```sh
-$ roslaunch ros_people_object_detection_tensorflow projection.launch
+$ roslaunch cob_people_object_detection_tensorflow projection.launch
 ```
 
 and it sets detections.pose.pose.position.x/y/z and pusblishes it.

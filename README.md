@@ -1,8 +1,8 @@
-# ROS People Object Detection Tensorflow
+# ROS People Object Detection & Action Recognition Tensorflow
 
 [![Open Source Love](https://badges.frapsoft.com/os/v2/open-source.svg?v=103)](https://github.com/cagbal/ros_people_object_detection_tensorflow) [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/cagbal/ros_people_object_detection_tensorflow)
 
-An extensive ROS toolbox for object detection & tracking and face recognition with 2D and 3D support which makes your Robot understand the environment
+An extensive ROS toolbox for object detection & tracking and face recognition with 2D and 3D support which makes your Robot understand the environment. Now it has action recognition capability by using i3d module in tensorflow hub.
 
 # Demo
 
@@ -28,6 +28,7 @@ NOTE: The object detection codes are based on jupyter notebook inside of the obj
 
   - Detects the objects in images coming from a camera topic  
   - Publishes the scores, bounding boxes and labes of detection
+  - Recognizes the actions and published the probabilities and labels returned by I3D model provided in tensorflow_hub
   - Publishes detection image with bounding boxes as a sensor_msgs/Image
   - Publishes the face recognition results
   - Publishes the tracking number(an integer) for each tracked object assigned by object tracker
@@ -36,7 +37,8 @@ NOTE: The object detection codes are based on jupyter notebook inside of the obj
   - Parameters can be set fom a Yaml file
   - Detects the faces inside the person area
   - [Completed] ~~TODO: you can currently use MASK RCNN, but it just publishes the mask drawn on the image, I am trying to publish the mask as a ROS message.~~ Now, it publishes it under detections.detection.mask.mask as an sensor image.
-  - [Completed thanks to @thjoshi] ~~TODO: I am not happy with tracking.~~  
+  - [Completed thanks to @thjoshi] ~~TODO: I am not happy with tracking.~~
+  - TODO: I need to test the action recognition  module thoroughly. [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/cagbal/ros_people_object_detection_tensorflow)
 
 ### Tech
 
@@ -44,6 +46,7 @@ This repo uses a number of open source projects to work properly:
 
 * [Tensorflow]
 * [Tensorflow-Object Detection API]
+* [Tensorflow Hub]
 * [ROS]
 * [Numpy]
 * [face_recognition] https://github.com/ageitgey/face_recognition
@@ -65,7 +68,7 @@ Then,
 $ cd && mkdir -p catkin_ws/src && cd ..
 $ catkin_make && cd src
 $ git clone --recursive https://github.com/cagbal/ros_people_object_detection_tensorflow.git
-$ git clone https://github.com/ipa-rmb/cob_perception_common.git
+$ git clone https://github.com/cagbal/cob_perception_common.git
 $ cd cob_people_object_detection_tensorflow/src
 $ protoc object_detection/protos/*.proto --python_out=.
 $ cd ~/catkin_ws
@@ -121,6 +124,14 @@ $ roslaunch cob_people_object_detection_tensorflow projection.launch
 ```
 
 and it sets detections.pose.pose.position.x/y/z and pusblishes it.
+
+If you also want to run action recognition,
+
+```sh
+$ roslaunch cob_people_object_detection_tensorflow action_recognition.launch
+```
+
+Then, you will see the probabilities published on /action_recognition/action_predictions
 
 ##### Subscibes to:
 - To any RGB image topic that you set in *params.yaml file.

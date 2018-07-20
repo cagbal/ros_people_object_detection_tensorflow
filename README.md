@@ -1,6 +1,6 @@
 # ROS People Object Detection & Action Recognition Tensorflow
 
-[![Open Source Love](https://badges.frapsoft.com/os/v2/open-source.svg?v=103)](https://github.com/cagbal/ros_people_object_detection_tensorflow) [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/cagbal/ros_people_object_detection_tensorflow)
+[![Open Source Love](https://badges.frapsoft.com/os/v2/open-source-200x33.png?v=103)](https://github.com/cagbal/ros_people_object_detection_tensorflow) [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/cagbal/ros_people_object_detection_tensorflow)
 
 An extensive ROS toolbox for object detection & tracking and face recognition with 2D and 3D support which makes your Robot understand the environment. Now it has action recognition capability by using i3d module in tensorflow hub.
 

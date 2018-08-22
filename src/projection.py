@@ -101,13 +101,12 @@ class ProjectionNode(object):
                 width =  detection.mask.roi.width
                 height = detection.mask.roi.height
 
-                cv_depth = cv_depth[y:y+height,x:x+width]
-
-                depth_mean = np.nanmedian(cv_depth[np.nonzero(cv_depth)])
+                cv_depth_bounding_box = cv_depth[y:y+height,x:x+width]
 
                 try:
 
-                    depth_mean = np.nanmedian(cv_depth[np.nonzero(cv_depth)])
+                    depth_mean = np.nanmedian(\
+                       cv_depth_bounding_box[np.nonzero(cv_depth_bounding_box)])
 
                     real_x = (x + width/2-self.cx)*(depth_mean*0.001)/self.f
 

@@ -15,3 +15,9 @@ depth_namespace: "/camera/depth_registered/hw_registered/image_rect"
 
 # Video name, if you provide a video name with path algorithm will run on it, otherwise write "no" for getting from camera
 video_name: "no"
+
+#number of threads for tensorflow, this paramareter will define the values of
+# intra_op_parallelism_threads=num_workers,
+# inter_op_parallelism_threads=num workers ,
+# if it is -1, then the decision will be made by tensorflow
+num_workers: 1

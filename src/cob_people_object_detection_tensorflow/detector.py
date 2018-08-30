@@ -27,7 +27,8 @@ class Detector(object):
     def __init__(self, \
         model_name='ssd_mobilenet_v1_coco_11_06_2017',\
         num_of_classes=90,\
-        label_file='mscoco_label_map.pbtxt'\
+        label_file='mscoco_label_map.pbtxt',\
+        num_workers=-1
         ):
 
         super(Detector, self).__init__()
@@ -44,6 +45,8 @@ class Detector(object):
         self.category_index = None
 
         self._label_file = label_file
+
+        self._num_workers = num_workers
 
         # get an instance of RosPack with the default search paths
         rospack = rospkg.RosPack()
@@ -98,7 +101,18 @@ class Detector(object):
 
         self.load_model()
 
-        self._sess = tf.Session(graph=self._detection_graph)
+        # Set the number of workers of TensorFlow
+        if self._num_workers == -1:
+            self._sess = tf.Session(graph=self._detection_graph)
+        else:
+            session_conf = tf.ConfigProto(
+                intra_op_parallelism_threads=self._num_workers,
+                inter_op_parallelism_threads=self._num_workers,
+            )
+
+            self._sess = tf.Session(graph=self._detection_graph,
+                config=session_conf)
+
 
     def detect(self, image):
         """

@@ -30,11 +30,13 @@ class PeopleObjectDetectionNode(object):
         rospy.init_node('people_object_detection', anonymous=False)
 
         # Get the parameters
-        (model_name, num_of_classes, label_file, camera_namespace, video_name) \
+        (model_name, num_of_classes, label_file, camera_namespace, video_name,
+            num_workers) \
         = self.get_parameters()
 
         # Create Detector
-        self._detector = Detector(model_name, num_of_classes, label_file)
+        self._detector = Detector(model_name, num_of_classes, label_file,
+            num_workers)
 
         self._bridge = CvBridge()
 
@@ -52,8 +54,6 @@ class PeopleObjectDetectionNode(object):
                 Image, self.rgb_callback, queue_size=1, buff_size=2**24)
         else:
             self.read_from_video(video_name)
-
-
         # spin
         rospy.spin()
 
@@ -105,9 +105,10 @@ class PeopleObjectDetectionNode(object):
         label_file  = rospy.get_param("~label_file")
         camera_namespace  = rospy.get_param("~camera_namespace")
         video_name = rospy.get_param("~video_name")
+        num_workers = rospy.get_param("~num_workers")
 
         return (model_name, num_of_classes, label_file, \
-                camera_namespace, video_name)
+                camera_namespace, video_name, num_workers)
 
 
     def shutdown(self):

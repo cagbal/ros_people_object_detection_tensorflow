@@ -6,27 +6,15 @@ Author:
     Cagatay Odabasi -- cagatay.odabasi@ipa.fraunhofer.de
 """
 
-import time
-
 import rospy
-
-import message_filters
 
 import numpy
 
 from scipy.optimize import linear_sum_assignment
 
-import cv2
+from cv_bridge import CvBridge
 
-from cv_bridge import CvBridge, CvBridgeError
-
-from sensor_msgs.msg import Image
-
-from cob_perception_msgs.msg import Detection, DetectionArray, Rect
-
-from cob_people_object_detection_tensorflow.detector import Detector
-
-from cob_people_object_detection_tensorflow import utils
+from cob_perception_msgs.msg import DetectionArray
 
 from sort import sort
 
@@ -46,7 +34,7 @@ class PeopleObjectTrackerNode(object):
 
         self._bridge = CvBridge()
 
-        self.tracker =  sort.Sort(max_age=max_age, min_hits=min_hits)
+        self.tracker = sort.Sort(max_age=max_age, min_hits=min_hits)
 
         self.cost_threshold = cost_threshold
 
@@ -54,7 +42,9 @@ class PeopleObjectTrackerNode(object):
         self.pub_trackers = rospy.Publisher(tracker_topic, \
             DetectionArray, queue_size=1)
 
-        self.sub_detection = rospy.Subscriber(detection_topic, DetectionArray, self.detection_callback)
+        self.sub_detection = rospy.Subscriber(detection_topic, \
+            DetectionArray,\
+            self.detection_callback)
 
         # spin
         rospy.spin()
@@ -70,7 +60,7 @@ class PeopleObjectTrackerNode(object):
 
         """
 
-        detection_topic  = rospy.get_param("~detection_topic")
+        detection_topic = rospy.get_param("~detection_topic")
         tracker_topic = rospy.get_param('~tracker_topic')
         cost_threhold = rospy.get_param('~cost_threhold')
         min_hits = rospy.get_param('~min_hits')
@@ -108,7 +98,7 @@ class PeopleObjectTrackerNode(object):
                 if True:
                     x =  detection.mask.roi.x
                     y = detection.mask.roi.y
-                    width =  detection.mask.roi.width
+                    width = detection.mask.roi.width
                     height = detection.mask.roi.height
                     score = detection.score
 
@@ -129,12 +119,10 @@ class PeopleObjectTrackerNode(object):
 
             # Create cost matrix
             # Double for in Python :(
-
             C = numpy.zeros((len(tracks), len(det_list)))
             for i, track in enumerate(tracks):
                 for j, det in enumerate(det_list):
                     C[i, j] = numpy.linalg.norm(det[0:-2] - track[0:-2])
-
 
             # apply linear assignment
             row_ind, col_ind = linear_sum_assignment(C)
@@ -161,7 +149,7 @@ class PeopleObjectTrackerNode(object):
 def main():
     """ main function
     """
-    node = PeopleObjectTrackerNode()
+    PeopleObjectTrackerNode()
 
 if __name__ == '__main__':
     main()

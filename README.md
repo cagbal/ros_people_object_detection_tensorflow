@@ -147,19 +147,10 @@ Then, you will see the probabilities published on /action_recognition/action_pre
 
 I am not a docker expert, so feel free to contribute also in this part. 
 
-The folder system is: 
-•
-└── docker/
-&nbsp;&nbsp;&nbsp;&nbsp;    ├── docker-compose.yml
-&nbsp;&nbsp;&nbsp;&nbsp;    ├── astra_docker/
-&nbsp;&nbsp;&nbsp;&nbsp;    │   └── Dockerfile
-&nbsp;&nbsp;&nbsp;&nbsp;    ├── cob_people_object_detection/
-&nbsp;&nbsp;&nbsp;&nbsp;    │   └── Dockerfile
-
 You have two choices. 
-###### 1- The main dockerfile is docker/cob_people_object_detection/Dockerfile, so if you just want to test this repo and you know how to arrange ROS master ports etc. in Docker, please use that one. 
+##### 1- The main dockerfile is docker/cob_people_object_detection/Dockerfile, so if you just want to test this repo and you know how to arrange ROS master ports etc. in Docker, please use that one. 
 A detailed documentation will be written soon.
-###### 2- You have a Orbbec Astra Camera, want to test this repo with it.
+##### 2- You have a Orbbec Astra Camera, want to test this repo with it.
 First, plug in your astra camera to your PC, and get the name of the port by writing lsusb. In my case, the output was like this:
 ```sh
 $ Bus 001 Device 016: ID 2bc5:0401

@@ -262,9 +262,9 @@ class FaceRecognitionNode(object):
         for f in filenames:
             im = cv2.imread(f, 1)
 
-            cv2.imshow("Database Image", im)
+            #cv2.imshow("Database Image", im)
 
-            cv2.waitKey(500)
+            #cv2.waitKey(500)
 
             im = im.astype(np.uint8)
 
@@ -272,7 +272,7 @@ class FaceRecognitionNode(object):
 
             name_list.append(f.split('/')[-1].split('.')[0])
 
-            cv2.destroyAllWindows()
+            #cv2.destroyAllWindows()
 
         return (people_list, name_list)
 

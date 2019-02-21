@@ -67,8 +67,7 @@ Then,
 ```sh
 $ cd && mkdir -p catkin_ws/src && cd ..
 $ catkin_make && cd src
-$ git clone --recursive https://github.com/cagbal/
-ple_object_detection_tensorflow.git
+$ git clone --recursive https://github.com/cagbal/cob_people_object_detection_tensorflow.git
 $ git clone https://github.com/cagbal/cob_perception_common.git
 $ cd cob_people_object_detection_tensorflow/src
 $ protoc object_detection/protos/*.proto --python_out=.

@@ -182,11 +182,24 @@ The five last detection times from my computer(Intel(R) Core(TM) i7-6820HK CPU @
 - cagbal
 - thjoshi
 
+## If you are using this repo, consider citing it
+Cagatay  Odabasi, ros_people_object_detection_tensorflow, GitHub repository, https://github.com/cagbal/ros_people_object_detection_tensorflow, 2017.
+```bib
+@misc{Odabasi2017,
+  author = {Odabasi, Cagatay},
+  title = {ros\_people\_object\_detection\_tensorflow},
+  year = {2017},
+  publisher = {GitHub},
+  journal = {GitHub repository},
+  howpublished = {\url{https://github.com/cagbal/ros_people_object_detection_tensorflow}},
+  commit = {4cf6fa95c3873e3f1a2404f9abd6e7afc7722f05}
+}
+```
+
 License
 ----
 
 Apache (but please also look at tensorflow, tf object detection, face_recognition and dlib licences)
-
 
 Acknowledgement
 ---

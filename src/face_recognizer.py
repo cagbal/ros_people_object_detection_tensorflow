@@ -79,13 +79,13 @@ class FaceRecognitionNode(object):
         self.sub_image = message_filters.Subscriber(image_topic, Image)
 
         # Scaling factor for face recognition image
-        self.scaling_factor = 0.50
+        self.scaling_factor = 1.0
 
         # Read the images from folder and create a database
         self.database = self.initialize_database()
 
         ts = message_filters.ApproximateTimeSynchronizer(\
-            [self.sub_detection, self.sub_image], 2, 0.2)
+            [self.sub_detection, self.sub_image], 2, 0.3)
 
         ts.registerCallback(self.detection_callback)
 
@@ -174,7 +174,7 @@ class FaceRecognitionNode(object):
 
                 try:
                     # Crop detection image
-                    detection_image = image[x:x+width, y:y+height]
+                    detection_image = image[y:y+height, x:x+width]
 
                     face_locations = fr.face_locations(detection_image)
 
@@ -185,12 +185,13 @@ class FaceRecognitionNode(object):
                         zip(face_features, face_locations):
                         matches = fr.compare_faces(self.database[0], features)
 
-                        l = y + left
-                        t = x + top
-                        r = y + right
-                        b = x + bottom
+                        l = x + left
+                        t = y + top
+                        r = x + right
+                        b = y + bottom
 
                         detection.label = "Unknown"
+
 
                         if True in matches:
                             ind = matches.index(True)
@@ -215,6 +216,7 @@ class FaceRecognitionNode(object):
                         cv2.FONT_HERSHEY_DUPLEX, 1.0, (0, 0, 0), 1)
 
                         detections_out.detections.append(detection)
+
 
                 except Exception as e:
                     print e

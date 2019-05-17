@@ -65,7 +65,7 @@ First, tensorflow should be installed on your system.
 
 Then,
 ```sh
-$ cd && mkdir -p catkin_ws/src && cd ..
+$ cd && mkdir -p catkin_ws/src && cd catkin_ws
 $ catkin_make && cd src
 $ git clone --recursive https://github.com/cagbal/cob_people_object_detection_tensorflow.git
 $ git clone https://github.com/cagbal/cob_perception_common.git

@@ -28,7 +28,6 @@ NOTE: The object detection codes are based on jupyter notebook inside of the obj
 
   - Detects the objects in images coming from a camera topic  
   - Publishes the scores, bounding boxes and labes of detection
-  - Recognizes the actions and published the probabilities and labels returned by I3D model provided in tensorflow_hub
   - Publishes detection image with bounding boxes as a sensor_msgs/Image
   - Publishes the face recognition results
   - Publishes the tracking number(an integer) for each tracked object assigned by object tracker
@@ -36,9 +35,7 @@ NOTE: The object detection codes are based on jupyter notebook inside of the obj
   - TODO: Depth estimation is based on median filter applied to non-nan values inside the face bounding box, if you have any suggestions: [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/cagbal/ros_people_object_detection_tensorflow)
   - Parameters can be set fom a Yaml file
   - Detects the faces inside the person area
-  - [Completed] ~~TODO: you can currently use MASK RCNN, but it just publishes the mask drawn on the image, I am trying to publish the mask as a ROS message.~~ Now, it publishes it under detections.detection.mask.mask as an sensor image.
-  - [Completed thanks to @thjoshi] ~~TODO: I am not happy with tracking.~~
-  - TODO: I need to test the action recognition  module thoroughly. [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/cagbal/ros_people_object_detection_tensorflow)
+  - TODO: Action Recognition is not working! [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/cagbal/ros_people_object_detection_tensorflow)
 
 ### Tech
 

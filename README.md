@@ -67,9 +67,9 @@ Then,
 ```sh
 $ cd && mkdir -p catkin_ws/src && cd catkin_ws
 $ catkin_make && cd src
-$ git clone --recursive https://github.com/cagbal/cob_people_object_detection_tensorflow.git
+$ git clone --recursive https://github.com/cagbal/ros_people_object_detection_tensorflow.git
 $ git clone https://github.com/cagbal/cob_perception_common.git
-$ cd cob_people_object_detection_tensorflow/src
+$ cd ros_people_object_detection_tensorflow/src
 $ protoc object_detection/protos/*.proto --python_out=.
 $ cd ~/catkin_ws
 $ rosdep install --from-path src/ -y -i

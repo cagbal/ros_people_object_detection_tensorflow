@@ -1,12 +1,10 @@
 FROM ros:kinetic
 LABEL maintainer "cagatay.odabasi@ipa.fraunhofer.de"
 
-RUN apt-get update 
-
-RUN apt-get install -y libopencv-dev \
+RUN apt-get update && apt-get install -y libopencv-dev \
     git \
     protobuf-compiler \
-    python-pip
+    python-pip 
 
 RUN mkdir -p /root/catkin_ws/src
 
@@ -23,8 +21,15 @@ RUN protoc object_detection/protos/anchor_generator.proto --python_out=.
 
 WORKDIR /root/catkin_ws
 
-RUN rosdep install --from-path /root/catkin_ws/src/ -y -i
+#RUN apt-key update && apt-get update && rosdep install --from-path /root/catkin_ws/src/ -y -i 
 
+
+# 
+RUN apt-get update && apt-get install -y --allow-unauthenticated \
+     ros-kinetic-cv-bridge \
+     ros-kinetic-eigen-conversions \
+     ros-kinetic-image-transport \
+     ros-kinetic-pcl-ros
 
 # Build 
 RUN /bin/bash -c 'source /opt/ros/kinetic/setup.bash && catkin_make'

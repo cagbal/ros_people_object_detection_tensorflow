@@ -140,12 +140,34 @@ Then, you will see the probabilities published on /action_recognition/action_pre
 - /face_recognizer/faces (cob_perception_msgs/DetectionArray) Face labels with face and people bounding boxes
 - /action_recognition/action_predictions (cob_perception_msgs/ActionRecognitionmsg) Action recognition probabilities with Kinetics 600 Dataset labels
 
-### Docker 
+### Docker
 
-I am not a docker expert, so feel free to contribute also in this part. 
+## Getting Started
 
-You have two choices. 
-##### 1- The main dockerfile is docker/cob_people_object_detection/Dockerfile, so if you just want to test this repo and you know how to arrange ROS master ports etc. in Docker, please use that one. 
+You can just pull the current docker image and start using it as below.
+```sh
+$ docker pull cagbal/ros_people_object_detection_tensorflow
+$ docker run -it --network host cagbal/ros_people_object_detection_tensorflow:kinetic
+```
+Now, you are in the container. Source it.
+```sh
+$ source devel/setup.bash
+```
+
+Launch the package.
+```sh
+$ roslaunch cob_people_object_detection_tensorflow alltogether.launch
+```
+
+Now, it is working. You just need to provide your camera stream. 
+
+
+## Manual build
+
+I am not a docker expert, so feel free to contribute also in this part.
+
+You have two choices.
+##### 1- The main dockerfile is docker/cob_people_object_detection/Dockerfile, so if you just want to test this repo and you know how to arrange ROS master ports etc. in Docker, please use that one.
 A detailed documentation will be written soon.
 ##### 2- You have a Orbbec Astra Camera, want to test this repo with it.
 First, plug in your astra camera to your PC, and get the name of the port by writing lsusb. In my case, the output was like this:
@@ -154,14 +176,14 @@ $ Bus 001 Device 016: ID 2bc5:0401
 ```
 So, open open docker-compose.yml in a text editor and insert the info that you get into line 16(devices part).
 
-Then, in a terminal, 
+Then, in a terminal,
 ```sh
 $ cd docker
-$ sudo docker-compose build 
-$ sudo docker-compose up -d 
+$ sudo docker-compose build
+$ sudo docker-compose up -d
 ```
 
-This should run 3 containers which are: 
+This should run 3 containers which are:
 - master (ROS Master)
 - cob_people_object_detection (All ROS nodes of this package)
 - astra (Camera related nodes)

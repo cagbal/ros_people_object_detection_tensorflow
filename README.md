@@ -140,9 +140,9 @@ Then, you will see the probabilities published on /action_recognition/action_pre
 - /face_recognizer/faces (cob_perception_msgs/DetectionArray) Face labels with face and people bounding boxes
 - /action_recognition/action_predictions (cob_perception_msgs/ActionRecognitionmsg) Action recognition probabilities with Kinetics 600 Dataset labels
 
-### Docker
+## Docker
 
-## Getting Started
+### Getting Started
 
 You can just pull the current docker image and start using it as below.
 ```sh
@@ -159,10 +159,10 @@ Launch the package.
 $ roslaunch cob_people_object_detection_tensorflow alltogether.launch
 ```
 
-Now, it is working. You just need to provide your camera stream. 
+Now, it is working. You just need to provide your camera stream.
 
 
-## Manual build
+### Manual build
 
 I am not a docker expert, so feel free to contribute also in this part.
 

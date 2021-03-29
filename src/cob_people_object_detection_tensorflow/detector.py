@@ -10,7 +10,8 @@ Cagatay Odabasi
 """
 
 import numpy as np
-import tensorflow as tf
+import tensorflow.compat.v1 as tf
+tf.disable_v2_behavior()
 import time
 
 import cv2
@@ -21,6 +22,8 @@ from object_detection.utils import visualization_utils as vis_util
 from object_detection.utils import ops as utils_ops
 
 import rospkg
+
+
 
 class Detector(object):
     """docstring for Detector."""
@@ -77,7 +80,7 @@ class Detector(object):
 
         with self._detection_graph.as_default():
             od_graph_def = tf.GraphDef()
-            with tf.gfile.GFile(self._path_to_ckpt, 'rb') as fid:
+            with tf.io.gfile.GFile(self._path_to_ckpt, 'rb') as fid:
                 serialized_graph = fid.read()
                 od_graph_def.ParseFromString(serialized_graph)
                 tf.import_graph_def(od_graph_def, name='')

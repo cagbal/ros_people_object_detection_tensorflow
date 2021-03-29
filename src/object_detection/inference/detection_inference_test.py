@@ -68,7 +68,7 @@ def create_mock_graph():
         name='detection_classes')
     graph_def = g.as_graph_def()
 
-  with tf.gfile.Open(get_mock_graph_path(), 'w') as fl:
+  with tf.io.gfile.Open(get_mock_graph_path(), 'w') as fl:
     fl.write(graph_def.SerializeToString())
 
 

@@ -70,7 +70,7 @@ def main(_):
 
   label_map = label_map_util.get_label_map_dict(FLAGS.input_label_map)
   all_annotations = pd.read_csv(FLAGS.input_annotations_csv)
-  all_images = tf.gfile.Glob(
+  all_images = tf.io.gfile.Glob(
       os.path.join(FLAGS.input_images_directory, '*.jpg'))
   all_image_ids = [os.path.splitext(os.path.basename(v))[0] for v in all_images]
   all_image_ids = pd.DataFrame({'ImageID': all_image_ids})
@@ -90,7 +90,7 @@ def main(_):
       image_id, image_annotations = image_data
       # In OID image file names are formed by appending ".jpg" to the image ID.
       image_path = os.path.join(FLAGS.input_images_directory, image_id + '.jpg')
-      with tf.gfile.Open(image_path) as image_file:
+      with tf.io.gfile.Open(image_path) as image_file:
         encoded_image = image_file.read()
 
       tf_example = oid_tfrecord_creation.tf_example_from_annotations_data_frame(

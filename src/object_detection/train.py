@@ -86,12 +86,12 @@ FLAGS = flags.FLAGS
 
 def main(_):
   assert FLAGS.train_dir, '`train_dir` is missing.'
-  if FLAGS.task == 0: tf.gfile.MakeDirs(FLAGS.train_dir)
+  if FLAGS.task == 0: tf.io.gfile.MakeDirs(FLAGS.train_dir)
   if FLAGS.pipeline_config_path:
     configs = config_util.get_configs_from_pipeline_file(
         FLAGS.pipeline_config_path)
     if FLAGS.task == 0:
-      tf.gfile.Copy(FLAGS.pipeline_config_path,
+      tf.io.gfile.Copy(FLAGS.pipeline_config_path,
                     os.path.join(FLAGS.train_dir, 'pipeline.config'),
                     overwrite=True)
   else:
@@ -103,7 +103,7 @@ def main(_):
       for name, config in [('model.config', FLAGS.model_config_path),
                            ('train.config', FLAGS.train_config_path),
                            ('input.config', FLAGS.input_config_path)]:
-        tf.gfile.Copy(config, os.path.join(FLAGS.train_dir, name),
+        tf.io.gfile.Copy(config, os.path.join(FLAGS.train_dir, name),
                       overwrite=True)
 
   model_config = configs['model']

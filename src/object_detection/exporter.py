@@ -365,7 +365,7 @@ def _export_inference_graph(input_type,
                             output_collection_name='inference_op',
                             graph_hook_fn=None):
   """Export helper."""
-  tf.gfile.MakeDirs(output_directory)
+  tf.io.gfile.MakeDirs(output_directory)
   frozen_graph_path = os.path.join(output_directory,
                                    'frozen_inference_graph.pb')
   saved_model_path = os.path.join(output_directory, 'saved_model')
@@ -453,6 +453,6 @@ def export_inference_graph(input_type,
                           graph_hook_fn=None)
   pipeline_config.eval_config.use_moving_averages = False
   config_text = text_format.MessageToString(pipeline_config)
-  with tf.gfile.Open(
+  with tf.io.gfile.Open(
       os.path.join(output_directory, 'pipeline.config'), 'wb') as f:
     f.write(config_text)

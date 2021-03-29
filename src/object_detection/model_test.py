@@ -163,7 +163,7 @@ class ModelTflearnTest(tf.test.TestCase):
     experiment = model_test_util.BuildExperiment()
     model_dir = experiment.estimator.model_dir
     pipeline_config_path = os.path.join(model_dir, 'pipeline.config')
-    self.assertTrue(tf.gfile.Exists(pipeline_config_path))
+    self.assertTrue(tf.io.gfile.Exists(pipeline_config_path))
 
 
 class UnbatchTensorsTest(tf.test.TestCase):

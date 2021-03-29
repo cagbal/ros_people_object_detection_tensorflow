@@ -513,7 +513,7 @@ def populate_experiment(run_config,
     pipeline_config_final_path = os.path.join(estimator.model_dir,
                                               'pipeline.config')
     config_text = text_format.MessageToString(pipeline_config_final)
-    with tf.gfile.Open(pipeline_config_final_path, 'wb') as f:
+    with tf.io.gfile.Open(pipeline_config_final_path, 'wb') as f:
       tf.logging.info('Writing as-run pipeline config file to %s',
                       pipeline_config_final_path)
       f.write(config_text)

@@ -83,11 +83,11 @@ FLAGS = flags.FLAGS
 def main(unused_argv):
   assert FLAGS.checkpoint_dir, '`checkpoint_dir` is missing.'
   assert FLAGS.eval_dir, '`eval_dir` is missing.'
-  tf.gfile.MakeDirs(FLAGS.eval_dir)
+  tf.io.gfile.MakeDirs(FLAGS.eval_dir)
   if FLAGS.pipeline_config_path:
     configs = config_util.get_configs_from_pipeline_file(
         FLAGS.pipeline_config_path)
-    tf.gfile.Copy(FLAGS.pipeline_config_path,
+    tf.io.gfile.Copy(FLAGS.pipeline_config_path,
                   os.path.join(FLAGS.eval_dir, 'pipeline.config'),
                   overwrite=True)
   else:
@@ -98,7 +98,7 @@ def main(unused_argv):
     for name, config in [('model.config', FLAGS.model_config_path),
                          ('eval.config', FLAGS.eval_config_path),
                          ('input.config', FLAGS.input_config_path)]:
-      tf.gfile.Copy(config,
+      tf.io.gfile.Copy(config,
                     os.path.join(FLAGS.eval_dir, name),
                     overwrite=True)
 

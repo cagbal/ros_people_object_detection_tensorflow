@@ -106,7 +106,7 @@ def create_tf_example(image,
   image_id = image['id']
 
   full_path = os.path.join(image_dir, filename)
-  with tf.gfile.GFile(full_path, 'rb') as fid:
+  with tf.io.gfile.GFile(full_path, 'rb') as fid:
     encoded_jpg = fid.read()
   encoded_jpg_io = io.BytesIO(encoded_jpg)
   image = PIL.Image.open(encoded_jpg_io)
@@ -198,7 +198,7 @@ def _create_tf_record_from_coco_annotations(
     include_masks: Whether to include instance segmentations masks
       (PNG encoded) in the result. default: False.
   """
-  with tf.gfile.GFile(annotations_file, 'r') as fid:
+  with tf.io.gfile.GFile(annotations_file, 'r') as fid:
     groundtruth_data = json.load(fid)
     images = groundtruth_data['images']
     category_index = label_map_util.create_category_index(
@@ -246,8 +246,8 @@ def main(_):
   assert FLAGS.val_annotations_file, '`val_annotations_file` missing.'
   assert FLAGS.testdev_annotations_file, '`testdev_annotations_file` missing.'
 
-  if not tf.gfile.IsDirectory(FLAGS.output_dir):
-    tf.gfile.MakeDirs(FLAGS.output_dir)
+  if not tf.io.gfile.IsDirectory(FLAGS.output_dir):
+    tf.io.gfile.MakeDirs(FLAGS.output_dir)
   train_output_path = os.path.join(FLAGS.output_dir, 'coco_train.record')
   val_output_path = os.path.join(FLAGS.output_dir, 'coco_val.record')
   testdev_output_path = os.path.join(FLAGS.output_dir, 'coco_testdev.record')

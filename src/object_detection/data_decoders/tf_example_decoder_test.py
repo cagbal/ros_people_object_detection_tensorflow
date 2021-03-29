@@ -375,7 +375,7 @@ class TfExampleDecoderTest(tf.test.TestCase):
       }
     """
     label_map_path = os.path.join(self.get_temp_dir(), 'label_map.pbtxt')
-    with tf.gfile.Open(label_map_path, 'wb') as f:
+    with tf.io.gfile.Open(label_map_path, 'wb') as f:
       f.write(label_map_string)
 
     example_decoder = tf_example_decoder.TfExampleDecoder(
@@ -420,7 +420,7 @@ class TfExampleDecoderTest(tf.test.TestCase):
       }
     """
     label_map_path = os.path.join(self.get_temp_dir(), 'label_map.pbtxt')
-    with tf.gfile.Open(label_map_path, 'wb') as f:
+    with tf.io.gfile.Open(label_map_path, 'wb') as f:
       f.write(label_map_string)
     example_decoder = tf_example_decoder.TfExampleDecoder(
         label_map_proto_file=label_map_path)
@@ -462,7 +462,7 @@ class TfExampleDecoderTest(tf.test.TestCase):
       }
     """
     label_map_path = os.path.join(self.get_temp_dir(), 'label_map.pbtxt')
-    with tf.gfile.Open(label_map_path, 'wb') as f:
+    with tf.io.gfile.Open(label_map_path, 'wb') as f:
       f.write(label_map_string)
     example_decoder = tf_example_decoder.TfExampleDecoder(
         label_map_proto_file=label_map_path)

@@ -29,7 +29,7 @@ class DatasetUtilTest(tf.test.TestCase):
 
     for i in range(5):
       path = self._path_template % i
-      with tf.gfile.Open(path, 'wb') as f:
+      with tf.io.gfile.Open(path, 'wb') as f:
         f.write('\n'.join([str(i + 1), str((i + 1) * 10)]))
 
   def _get_dataset_next(self, files, config, batch_size):
@@ -44,7 +44,7 @@ class DatasetUtilTest(tf.test.TestCase):
   def test_read_examples_list(self):
     example_list_data = """example1 1\nexample2 2"""
     example_list_path = os.path.join(self.get_temp_dir(), 'examples.txt')
-    with tf.gfile.Open(example_list_path, 'wb') as f:
+    with tf.io.gfile.Open(example_list_path, 'wb') as f:
       f.write(example_list_data)
 
     examples = dataset_util.read_examples_list(example_list_path)

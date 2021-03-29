@@ -86,7 +86,7 @@ def dict_to_tf_example(data,
     ValueError: if the image pointed to by data['filename'] is not a valid JPEG
   """
   img_path = os.path.join(image_subdirectory, data['filename'])
-  with tf.gfile.GFile(img_path, 'rb') as fid:
+  with tf.io.gfile.GFile(img_path, 'rb') as fid:
     encoded_jpg = fid.read()
   encoded_jpg_io = io.BytesIO(encoded_jpg)
   image = PIL.Image.open(encoded_jpg_io)
@@ -169,7 +169,7 @@ def create_tf_record(output_filename,
     if not os.path.exists(path):
       logging.warning('Could not find %s, ignoring example.', path)
       continue
-    with tf.gfile.GFile(path, 'r') as fid:
+    with tf.io.gfile.GFile(path, 'r') as fid:
       xml_str = fid.read()
     xml = etree.fromstring(xml_str)
     data = dataset_util.recursive_parse_xml_to_dict(xml)['annotation']

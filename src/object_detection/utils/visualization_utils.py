@@ -72,7 +72,7 @@ def save_image_array_as_png(image, output_path):
     output_path: path to which image should be written.
   """
   image_pil = Image.fromarray(np.uint8(image)).convert('RGB')
-  with tf.gfile.Open(output_path, 'w') as fid:
+  with tf.io.gfile.Open(output_path, 'w') as fid:
     image_pil.save(fid, 'PNG')
 
 

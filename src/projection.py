@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """
 A ROS node to get 3D values of bounding boxes returned by face_recognizer node.
 
@@ -117,7 +117,7 @@ class ProjectionNode(object):
                     msg.detections[i].pose.pose.position.z = depth_mean*0.001
 
                 except Exception as e:
-                    print e
+                    print(e)
 
         self.pub.publish(msg)
 

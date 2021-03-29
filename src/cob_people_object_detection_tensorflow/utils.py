@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 """
 Helper functions and classes will be placed here.
@@ -100,8 +100,8 @@ def create_detection_msg(im, output_dict, category_index, bridge):
             detection.mask.mask = \
                 bridge.cv2_to_imgmsg(masks[s], "mono8")
 
-            print detection.mask.mask.width
-
+            print(detection.mask.mask.width)
+    
 
         msg.detections.append(detection)
 

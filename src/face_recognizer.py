@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """
 A ROS node to get face bounding boxes inside of person bounding boxes returned
 by object detection node.
@@ -219,7 +219,7 @@ class FaceRecognitionNode(object):
 
 
                 except Exception as e:
-                    print e
+                    print(e)
 
         return (image, detections_out)
 

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """
 A ROS node to detect objects via TensorFlow Object Detection API.
 
@@ -141,7 +141,7 @@ class PeopleObjectTrackerNode(object):
 
 
         else:
-            print "No tracked objects!"
+            print("No tracked objects!")
 
         self.pub_trackers.publish(detections)
 

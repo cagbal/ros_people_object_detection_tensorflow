@@ -1,10 +1,16 @@
-FROM ros:kinetic
+ARG ROS_VERSION=noetic
+
+FROM ros:${ROS_VERSION}
+
+ARG ROS_VERSION
+
 LABEL maintainer "cagatay.odabasi@ipa.fraunhofer.de"
 
+ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get install -y libopencv-dev \
     git \
     protobuf-compiler \
-    python-pip 
+    python3-pip 
 
 RUN mkdir -p /root/catkin_ws/src
 
@@ -12,8 +18,6 @@ RUN mkdir -p /root/catkin_ws/src
 WORKDIR /root/catkin_ws/src
 
 RUN git clone --recursive https://github.com/cagbal/cob_people_object_detection_tensorflow.git
-
-RUN git clone https://github.com/cagbal/cob_perception_common.git
 
 WORKDIR /root/catkin_ws/src/cob_people_object_detection_tensorflow/src
 
@@ -26,23 +30,25 @@ WORKDIR /root/catkin_ws
 
 # 
 RUN apt-get update && apt-get install -y --allow-unauthenticated \
-     ros-kinetic-cv-bridge \
-     ros-kinetic-eigen-conversions \
-     ros-kinetic-image-transport \
-     ros-kinetic-pcl-ros
+     ros-${ROS_VERSION}-cv-bridge \
+     ros-${ROS_VERSION}-eigen-conversions \
+     ros-${ROS_VERSION}-image-transport \
+     ros-${ROS_VERSION}-pcl-ros \
+     ros-${ROS_VERSION}-cob-perception-common
+
+RUN apt-get update && apt-get install -y libtinyxml-dev
 
 # Build 
-RUN /bin/bash -c 'source /opt/ros/kinetic/setup.bash && catkin_make'
-
+RUN /bin/bash -c 'source /opt/ros/${ROS_VERSION}/setup.bash && catkin_make'
 
 # Install packages with pip
-RUN pip install --upgrade --force-reinstall pip==9.0.3
+RUN pip3 install --upgrade --force-reinstall pip==20.03
 
-RUN pip install tensorflow \
+RUN pip3 install tensorflow \
     scipy \
     filterpy \ 
     matplotlib \
-    face_recognition \
-    numba \ 
-    sklearn
+    face_recognition \ 
+    sklearn \
+    numba
 
